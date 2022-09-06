@@ -8,42 +8,38 @@ import {
   useRef,
   useSyncExternalStore,
 } from "react";
-import { makeSubject, pipe, subscribe } from "wonka";
 
 export interface UseFormOptions {
   defaultValues: FormValues;
 }
 
 export function useForm({ defaultValues }: UseFormOptions) {
-  const stateSubjectRef = useRef(makeSubject<FormState>());
-  const currentStateRef = useRef({
+  const subscribersRef = useRef(new Set<Subscriber>());
+  const stateRef = useRef({
     values: defaultValues,
   });
 
   const publishState = (nextState: FormState) => {
-    currentStateRef.current = nextState;
-    stateSubjectRef.current.next(nextState);
+    stateRef.current = nextState;
+    subscribersRef.current.forEach((fn) => fn());
   };
 
   const initialValuesRef = useRef(defaultValues);
   return useMemo(
     () => ({
       store: {
-        getSnapshot: () => currentStateRef.current,
+        getSnapshot: () => stateRef.current,
         subscribe: (listener: () => void) => {
-          const { unsubscribe } = pipe(
-            stateSubjectRef.current.source,
-            subscribe(listener)
-          );
-          return unsubscribe;
+          subscribersRef.current.add(listener);
+          return () => {
+            subscribersRef.current.delete(listener);
+          };
         },
       },
-      subject: stateSubjectRef.current,
       setValue: (name: string, value: any) => {
-        const nextValues = { ...currentStateRef.current.values, [name]: value };
         const nextState = {
-          ...currentStateRef.current,
-          values: nextValues,
+          ...stateRef.current,
+          values: { ...stateRef.current.values, [name]: value },
         };
         publishState(nextState);
       },
@@ -55,24 +51,24 @@ export function useForm({ defaultValues }: UseFormOptions) {
 
 type FormInstance = ReturnType<typeof useForm>;
 type FormValues = Record<string, any>;
+type Subscriber = () => void;
 interface FormState {
   values: FormValues;
 }
 
-function createFormState(defaultValues: any) {
-  return {
-    values: defaultValues,
-  };
-}
+// function createFormState(defaultValues: any) {
+//   return {
+//     values: defaultValues,
+//   };
+// }
 
 const FormContext = createContext<FormInstance>({
   defaultValues: {},
-  subject: makeSubject(),
+  setValue: () => {},
   store: {
     getSnapshot: () => ({ values: {} }),
     subscribe: () => () => {},
   },
-  setValue: () => {},
 });
 
 function useFormContext() {
