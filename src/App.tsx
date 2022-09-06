@@ -1,5 +1,5 @@
 import "./App.css";
-import { TextInputField } from "./form/TextInputField";
+import { SubmitButton, TextInputField } from "./form/TextInputField";
 import { Form, useForm } from "./form/useForm";
 
 export function App() {
@@ -10,6 +10,7 @@ export function App() {
       fullName: "",
     },
   });
+  // const formState = useFormState();
   return (
     <div>
       <Form
@@ -20,8 +21,14 @@ export function App() {
         <TextInputField name="firstName" />
         <TextInputField name="lastName" />
         <TextInputField name="fullName" />
-        <button type="submit">💾</button>
+        <SubmitButton name="submit" value="success">
+          💾
+        </SubmitButton>
+        <SubmitButton name="submit" value="error">
+          💾❌
+        </SubmitButton>
       </Form>
+      <p></p>
     </div>
   );
 }
