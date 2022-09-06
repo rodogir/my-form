@@ -10,14 +10,18 @@ export function App() {
       fullName: "",
     },
   });
-  // const formState = useFormState();
+  const simulateSubmit = async (values: any) => {
+    await waitFor(850);
+    if (values.submit === "error") {
+      console.log("failed to submit", values);
+      // todo: set form state to error;
+    } else {
+      console.log("successfully submitted", values);
+    }
+  };
   return (
     <div>
-      <Form
-        id="sample-1"
-        formInstance={form}
-        onSubmit={(values) => console.log(values)}
-      >
+      <Form id="sample-1" formInstance={form} onSubmit={simulateSubmit}>
         <TextInputField name="firstName" />
         <TextInputField name="lastName" />
         <TextInputField name="fullName" />
@@ -31,4 +35,10 @@ export function App() {
       <p></p>
     </div>
   );
+}
+
+function waitFor(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 }
