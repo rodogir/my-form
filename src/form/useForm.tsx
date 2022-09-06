@@ -4,7 +4,6 @@ import {
   FormEvent,
   ReactNode,
   useContext,
-  useEffect,
   useMemo,
   useRef,
   useSyncExternalStore,
@@ -21,13 +20,11 @@ export function useForm({ defaultValues }: UseFormOptions) {
     values: defaultValues,
   });
 
-  useEffect(() => {
-    const { unsubscribe } = pipe(
-      stateSubjectRef.current.source,
-      subscribe((state) => (currentStateRef.current = state))
-    );
-    return unsubscribe;
-  }, []);
+  const publishState = (nextState: FormState) => {
+    currentStateRef.current = nextState;
+    stateSubjectRef.current.next(nextState);
+  };
+
   const initialValuesRef = useRef(defaultValues);
   return useMemo(
     () => ({
@@ -43,11 +40,12 @@ export function useForm({ defaultValues }: UseFormOptions) {
       },
       subject: stateSubjectRef.current,
       setValue: (name: string, value: any) => {
-        const newValues = { ...currentStateRef.current.values, [name]: value };
-        stateSubjectRef.current.next({
+        const nextValues = { ...currentStateRef.current.values, [name]: value };
+        const nextState = {
           ...currentStateRef.current,
-          values: newValues,
-        });
+          values: nextValues,
+        };
+        publishState(nextState);
       },
       defaultValues: initialValuesRef.current,
     }),
@@ -110,7 +108,9 @@ export function useFormField(name: string) {
   const value = useSyncExternalStore(
     store.subscribe,
     // todo: support nested values
-    () => store.getSnapshot().values[name]
+    () => {
+      return store.getSnapshot().values[name];
+    }
   );
 
   return {
