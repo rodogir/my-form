@@ -9,3 +9,5 @@
 - [ ] validation support with a function
 - [x] prevent submit spamming
 - [ ] disable submit button in "submitting" and "submitted" states
+- [ ] field array support
+- [ ] field array w/o object
