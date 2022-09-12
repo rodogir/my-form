@@ -1,6 +1,6 @@
 import "./App.css";
 import { SubmitButton, TextInputField } from "./form/TextInputField";
-import { Form, useForm, useFormState } from "./form/useForm";
+import { Form, useForm, useFormState, useSubmitCount } from "./form/useForm";
 
 export function App() {
   const form = useForm({
@@ -50,10 +50,13 @@ export function App() {
 
 function FormStateMessage() {
   const state = useFormState();
+  const submitCount = useSubmitCount();
   return (
     <>
       {state === "submitting" && <p>Submitting ...</p>}
-      {state === "submitted" && <p>✅ Form successfully submitted</p>}
+      {state === "submitted" && (
+        <p>✅ Form successfully submitted. submit count: {submitCount}</p>
+      )}
       {state === "error" && <p>❌ Oh no, submitting the form failed 😔</p>}
     </>
   );

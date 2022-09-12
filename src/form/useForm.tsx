@@ -18,6 +18,7 @@ export function useForm({ defaultValues }: UseFormOptions) {
   const stateRef = useRef<FormStateValue>({
     values: defaultValues,
     state: "valid",
+    submitCount: 0,
   });
 
   const publishState = (nextState: FormStateValue) => {
@@ -45,17 +46,24 @@ export function useForm({ defaultValues }: UseFormOptions) {
         publishState(nextState);
       },
       setState: (state: FormState) => {
+        const currentState = stateRef.current;
         const nextState: FormStateValue = {
           ...stateRef.current,
           state,
+          submitCount:
+            state === "submitted" && currentState.state !== "submitted"
+              ? currentState.submitCount + 1
+              : currentState.submitCount,
         };
         publishState(nextState);
       },
       defaultValues: initialValuesRef.current,
       reset: () => {
+        const currentState = stateRef.current;
         publishState({
           state: "valid",
           values: initialValuesRef.current,
+          submitCount: currentState.submitCount,
         });
       },
     }),
@@ -70,6 +78,7 @@ type FormState = "valid" | "submitted" | "submitting" | "error";
 interface FormStateValue {
   values: FormValues;
   state: FormState;
+  submitCount: number;
 }
 
 // function createFormState(defaultValues: any) {
@@ -84,7 +93,7 @@ const FormContext = createContext<FormInstance>({
   setState: () => {},
   reset: () => {},
   store: {
-    getSnapshot: () => ({ values: {}, state: "valid" }),
+    getSnapshot: () => ({ values: {}, state: "valid", submitCount: 0 }),
     subscribe: () => () => {},
   },
 });
@@ -148,11 +157,22 @@ export function useFormField(name: string) {
   };
 }
 
-export function useFormState(instance?: FormInstance) {
+export function useFormStateField(
+  field: keyof FormStateValue,
+  instance?: FormInstance
+) {
   const contextForm = useFormContext();
   const { store } = instance ?? contextForm;
 
   return useSyncExternalStore(store.subscribe, () => {
-    return store.getSnapshot().state;
+    return store.getSnapshot()[field];
   });
+}
+
+export function useFormState(instance?: FormInstance) {
+  return useFormStateField("state", instance);
+}
+
+export function useSubmitCount(instance?: FormInstance) {
+  return useFormStateField("submitCount", instance);
 }

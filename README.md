@@ -11,3 +11,4 @@
 - [ ] disable submit button in "submitting" and "submitted" states
 - [ ] field array support
 - [ ] field array w/o object
+- [x] submit count
