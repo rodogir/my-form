@@ -12,3 +12,4 @@
 - [ ] field array support
 - [ ] field array w/o object
 - [x] submit count
+- [ ] debounce validation and prevent submit while validating

@@ -8,6 +8,10 @@ import {
   useRef,
   useSyncExternalStore,
 } from "react";
+import { useEvent } from "./useEvent";
+import { getIn, setIn } from "./utils";
+
+import { produce } from "immer";
 
 export interface UseFormOptions {
   defaultValues: FormValues;
@@ -17,16 +21,23 @@ export function useForm({ defaultValues }: UseFormOptions) {
   const subscribersRef = useRef(new Set<Subscriber>());
   const stateRef = useRef<FormStateValue>({
     values: defaultValues,
+    arrays: findFieldArrays(defaultValues),
     state: "valid",
     submitCount: 0,
   });
 
-  const publishState = (nextState: FormStateValue) => {
+  const publishState = useEvent((nextState: FormStateValue) => {
     stateRef.current = nextState;
     subscribersRef.current.forEach((fn) => fn());
-  };
+  });
 
   const initialValuesRef = useRef(defaultValues);
+
+  const update = useEvent((updater: (current: FormStateValue) => void) => {
+    const nextState = produce(stateRef.current, updater);
+    publishState(nextState);
+  });
+
   return useMemo(
     () => ({
       store: {
@@ -38,12 +49,11 @@ export function useForm({ defaultValues }: UseFormOptions) {
           };
         },
       },
+      update,
       setValue: (name: string, value: any) => {
-        const nextState: FormStateValue = {
-          ...stateRef.current,
-          values: { ...stateRef.current.values, [name]: value },
-        };
-        publishState(nextState);
+        update((current) => {
+          setIn(current, `values.${name}`, value);
+        });
       },
       setState: (state: FormState) => {
         const currentState = stateRef.current;
@@ -58,11 +68,12 @@ export function useForm({ defaultValues }: UseFormOptions) {
         publishState(nextState);
       },
       defaultValues: initialValuesRef.current,
-      reset: () => {
+      reset: (values: FormValues = initialValuesRef.current) => {
         const currentState = stateRef.current;
         publishState({
           state: "valid",
-          values: initialValuesRef.current,
+          values,
+          arrays: findFieldArrays(values),
           submitCount: currentState.submitCount,
         });
       },
@@ -71,12 +82,31 @@ export function useForm({ defaultValues }: UseFormOptions) {
   );
 }
 
+// todo: add support for nested fields
+function findFieldArrays(values: FormValues) {
+  return Object.entries(values).reduce<FieldArrayState>(
+    (acc, [name, value]) => {
+      if (Array.isArray(value)) {
+        acc[name] = { fields: value.map(() => ({ key: generateRandId() })) };
+      }
+      return acc;
+    },
+    {}
+  );
+}
+
+function generateRandId() {
+  return (Math.random() * 10 ** 10).toFixed(0);
+}
+
 type FormInstance = ReturnType<typeof useForm>;
 type FormValues = Record<string, any>;
+type FieldArrayState = Record<string, { fields: { key: string }[] }>;
 type Subscriber = () => void;
 type FormState = "valid" | "submitted" | "submitting" | "error";
 interface FormStateValue {
   values: FormValues;
+  arrays: FieldArrayState;
   state: FormState;
   submitCount: number;
 }
@@ -92,8 +122,14 @@ const FormContext = createContext<FormInstance>({
   setValue: () => {},
   setState: () => {},
   reset: () => {},
+  update: () => {},
   store: {
-    getSnapshot: () => ({ values: {}, state: "valid", submitCount: 0 }),
+    getSnapshot: () => ({
+      values: {},
+      arrays: {},
+      state: "valid",
+      submitCount: 0,
+    }),
     subscribe: () => () => {},
   },
 });
@@ -139,13 +175,9 @@ type FormValue = "string";
 
 export function useFormField(name: string) {
   const { store, setValue } = useFormContext();
-  const value = useSyncExternalStore(
-    store.subscribe,
-    // todo: support nested values
-    () => {
-      return store.getSnapshot().values[name];
-    }
-  );
+  const value = useSyncExternalStore(store.subscribe, () => {
+    return getIn(store.getSnapshot().values, name);
+  });
 
   return {
     name,
@@ -175,4 +207,26 @@ export function useFormState(instance?: FormInstance) {
 
 export function useSubmitCount(instance?: FormInstance) {
   return useFormStateField("submitCount", instance);
+}
+
+export function useFieldArray(name: string, instance?: FormInstance) {
+  const contextForm = useFormContext();
+  const { store, update } = instance ?? contextForm;
+
+  const arrays = useSyncExternalStore(store.subscribe, () => {
+    return store.getSnapshot().arrays[name];
+  });
+
+  return {
+    fields: arrays.fields.map(({ key }, idx) => ({
+      key,
+      name: `${name}.${idx}`,
+    })),
+    append: useEvent((value) => {
+      update((current) => {
+        current.values[name].push(value);
+        current.arrays[name].fields.push({ key: generateRandId() });
+      });
+    }),
+  };
 }
