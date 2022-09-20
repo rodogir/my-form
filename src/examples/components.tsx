@@ -70,3 +70,24 @@ export function ResetButton({
     </button>
   );
 }
+
+export function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <section>
+      <h1 className="text-2xl font-semibold text-gray-800 capitalize mb-6">
+        {title}
+      </h1>
+      {children}
+    </section>
+  );
+}
+
+export function Buttons({ children }: { children: ReactNode }) {
+  return <div className="flex gap-2 justify-end">{children}</div>;
+}

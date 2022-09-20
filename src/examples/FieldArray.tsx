@@ -1,7 +1,13 @@
 import { Fragment } from "react";
 import { Form, useFieldArray, useForm } from "../form/useForm";
+import {
+  Buttons,
+  ResetButton,
+  Section,
+  SubmitButton,
+  TextInputField,
+} from "./components";
 import { FormStateMessage, waitFor } from "./helpers";
-import { SubmitButton, TextInputField } from "./components";
 
 export function FieldArray() {
   const form = useForm({
@@ -25,54 +31,53 @@ export function FieldArray() {
   const users = useFieldArray("users", form);
 
   return (
-    <Form
-      id="field-array"
-      formInstance={form}
-      onSubmit={simulateSubmit}
-      className="flex-col"
-    >
-      <div className="flex">
-        {emails.fields.map(({ key, name }, index) => (
-          <Fragment key={key}>
-            <TextInputField name={name} />
-            <button type="button" onClick={() => emails.remove(index)}>
-              ➖
-            </button>
-          </Fragment>
-        ))}
-      </div>
-      <button type="button" onClick={() => emails.append("")}>
-        ➕ add email
-      </button>
-      <div className="flex">
-        {users.fields.map(({ key, name }, index) => (
-          <Fragment key={key}>
-            <TextInputField name={`${name}.name`} />
-            <TextInputField name={`${name}.password`} />
-            <button type="button" onClick={() => users.remove(index)}>
-              ➖
-            </button>
-          </Fragment>
-        ))}
-      </div>
-      <button
-        type="button"
-        onClick={() => users.append({ name: "", password: "changeme" })}
+    <Section title="Field array">
+      <Form
+        id="field-array"
+        formInstance={form}
+        onSubmit={simulateSubmit}
+        className="flex-col"
       >
-        ➕ add user
-      </button>
-      <div className="flex">
-        <SubmitButton name="submit" value="success">
-          💾
-        </SubmitButton>
-        <SubmitButton name="submit" value="error">
-          💾❌
-        </SubmitButton>
-        <button type="button" onClick={form.reset}>
-          ↩️
+        <div className="flex">
+          {emails.fields.map(({ key, name }, index) => (
+            <Fragment key={key}>
+              <TextInputField name={name} />
+              <button type="button" onClick={() => emails.remove(index)}>
+                ➖
+              </button>
+            </Fragment>
+          ))}
+        </div>
+        <button type="button" onClick={() => emails.append("")}>
+          ➕ add email
         </button>
-      </div>
-      <FormStateMessage />
-    </Form>
+        <div className="flex">
+          {users.fields.map(({ key, name }, index) => (
+            <Fragment key={key}>
+              <TextInputField name={`${name}.name`} />
+              <TextInputField name={`${name}.password`} />
+              <button type="button" onClick={() => users.remove(index)}>
+                ➖
+              </button>
+            </Fragment>
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={() => users.append({ name: "", password: "changeme" })}
+        >
+          ➕ add user
+        </button>
+        <Buttons>
+          <ResetButton
+            onClick={() => {
+              form.reset();
+            }}
+          />
+          <SubmitButton name="submit" value="success" />
+        </Buttons>
+        <FormStateMessage />
+      </Form>
+    </Section>
   );
 }
