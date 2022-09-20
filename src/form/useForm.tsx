@@ -228,5 +228,11 @@ export function useFieldArray(name: string, instance?: FormInstance) {
         current.arrays[name].fields.push({ key: generateRandId() });
       });
     }),
+    remove: useEvent((index: number) => {
+      update((current) => {
+        current.values[name].splice(index, 1);
+        current.arrays[name].fields.splice(index, 1);
+      });
+    }),
   };
 }

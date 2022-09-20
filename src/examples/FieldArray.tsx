@@ -7,6 +7,7 @@ export function FieldArray() {
   const form = useForm({
     defaultValues: {
       emails: ["me@example.com"],
+      users: [{ name: "Peter", password: "monkey7" }],
     },
   });
 
@@ -20,7 +21,8 @@ export function FieldArray() {
     }
   };
 
-  const { fields, append } = useFieldArray("emails", form);
+  const emails = useFieldArray("emails", form);
+  const users = useFieldArray("users", form);
 
   return (
     <Form
@@ -30,17 +32,34 @@ export function FieldArray() {
       className="flex-col"
     >
       <div className="flex">
-        {fields.map(({ key, name }) => (
+        {emails.fields.map(({ key, name }, index) => (
           <Fragment key={key}>
-            <TextInputField name={name} key={name} />
-            {/* <button type="button" onClick={() => append("")}>
-              ➕ add email
-            </button> */}
+            <TextInputField name={name} />
+            <button type="button" onClick={() => emails.remove(index)}>
+              ➖
+            </button>
           </Fragment>
         ))}
       </div>
-      <button type="button" onClick={() => append("")}>
+      <button type="button" onClick={() => emails.append("")}>
         ➕ add email
+      </button>
+      <div className="flex">
+        {users.fields.map(({ key, name }, index) => (
+          <Fragment key={key}>
+            <TextInputField name={`${name}.name`} />
+            <TextInputField name={`${name}.password`} />
+            <button type="button" onClick={() => users.remove(index)}>
+              ➖
+            </button>
+          </Fragment>
+        ))}
+      </div>
+      <button
+        type="button"
+        onClick={() => users.append({ name: "", password: "changeme" })}
+      >
+        ➕ add user
       </button>
       <div className="flex">
         <SubmitButton name="submit" value="success">
