@@ -1,7 +1,7 @@
 import { Fragment } from "react";
-import { SubmitButton, TextInputField } from "../form/TextInputField";
 import { Form, useFieldArray, useForm } from "../form/useForm";
 import { FormStateMessage, waitFor } from "./helpers";
+import { SubmitButton, TextInputField } from "./components";
 
 export function FieldArray() {
   const form = useForm({

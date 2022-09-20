@@ -1,6 +1,7 @@
-import { SubmitButton, TextInputField } from "../form/TextInputField";
 import { Form, useForm } from "../form/useForm";
+import { ResetButton, SubmitButton, TextInputField } from "./components";
 import { FormStateMessage, waitFor } from "./helpers";
+import { FireIcon } from "@heroicons/react/24/outline";
 
 export function Simple() {
   const form = useForm({
@@ -25,23 +26,19 @@ export function Simple() {
       id="sample-1"
       formInstance={form}
       onSubmit={simulateSubmit}
-      className="flex-col"
+      className="flex flex-col gap-3 max-w-4xl"
     >
-      <div className="flex">
-        <TextInputField name="firstName" />
-        <TextInputField name="lastName" />
-        <TextInputField name="fullName" />
+      <div className="grid grid-cols-3 gap-2">
+        <TextInputField name="firstName" label="Given name" />
+        <TextInputField name="lastName" label="Last name" />
+        <TextInputField name="fullName" label="Full name" />
       </div>
-      <div className="flex">
-        <SubmitButton name="submit" value="success">
-          💾
-        </SubmitButton>
+      <div className="flex gap-2 justify-end">
+        <ResetButton onClick={form.reset} />
         <SubmitButton name="submit" value="error">
-          💾❌
+          <FireIcon className="h-5 w-5 text-rose-700" />
         </SubmitButton>
-        <button type="button" onClick={form.reset}>
-          ↩️
-        </button>
+        <SubmitButton name="submit" value="success" />
       </div>
       <FormStateMessage />
     </Form>
