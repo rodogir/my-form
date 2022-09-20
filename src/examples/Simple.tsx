@@ -11,6 +11,7 @@ export function Simple() {
       fullName: "",
     },
   });
+
   const simulateSubmit = async (values: any) => {
     await waitFor(850);
     console.log("submitted", values);
@@ -30,7 +31,7 @@ export function Simple() {
         id="sample-1"
         formInstance={form}
         onSubmit={simulateSubmit}
-        className="mt-6 flex flex-col gap-3 max-w-4xl"
+        className="mt-6 flex flex-col gap-3"
       >
         <div className="grid grid-cols-3 gap-2">
           <TextInputField name="firstName" label="Given name" />
@@ -38,7 +39,11 @@ export function Simple() {
           <TextInputField name="fullName" label="Full name" />
         </div>
         <div className="flex gap-2 justify-end">
-          <ResetButton onClick={form.reset} />
+          <ResetButton
+            onClick={() => {
+              form.reset();
+            }}
+          />
           <SubmitButton name="submit" value="error">
             <FireIcon className="h-5 w-5 text-rose-700" />
           </SubmitButton>

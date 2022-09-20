@@ -40,7 +40,6 @@ export function SubmitButton({
   children?: ReactNode;
 }) {
   const { onChange } = useFormField(name);
-
   return (
     <button
       type="submit"
