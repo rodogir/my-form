@@ -1,7 +1,8 @@
-import { Fragment } from "react";
 import { Form, useFieldArray, useForm } from "../form/useForm";
 import {
+  AddItemButton,
   Buttons,
+  RemoveItemButton,
   ResetButton,
   Section,
   SubmitButton,
@@ -36,38 +37,37 @@ export function FieldArray() {
         id="field-array"
         formInstance={form}
         onSubmit={simulateSubmit}
-        className="flex-col"
+        className="flex flex-col gap-3"
       >
-        <div className="flex">
+        <div className="grid grid-cols-3 gap-2">
           {emails.fields.map(({ key, name }, index) => (
-            <Fragment key={key}>
-              <TextInputField name={name} />
-              <button type="button" onClick={() => emails.remove(index)}>
-                ➖
-              </button>
-            </Fragment>
+            <div key={key} className="flex gap-1 items-end">
+              <TextInputField name={name} label={`E-mail ${index + 1}`} />
+              <RemoveItemButton onClick={() => emails.remove(index)} />
+            </div>
           ))}
         </div>
-        <button type="button" onClick={() => emails.append("")}>
-          ➕ add email
-        </button>
-        <div className="flex">
+        <div>
+          <AddItemButton onClick={() => emails.append("")}>
+            E-mail
+          </AddItemButton>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
           {users.fields.map(({ key, name }, index) => (
-            <Fragment key={key}>
-              <TextInputField name={`${name}.name`} />
-              <TextInputField name={`${name}.password`} />
-              <button type="button" onClick={() => users.remove(index)}>
-                ➖
-              </button>
-            </Fragment>
+            <div key={key} className="flex gap-1 items-end">
+              <TextInputField name={`${name}.name`} label="User name" />
+              <TextInputField name={`${name}.password`} label="Password" />
+              <RemoveItemButton onClick={() => users.remove(index)} />
+            </div>
           ))}
         </div>
-        <button
-          type="button"
-          onClick={() => users.append({ name: "", password: "changeme" })}
-        >
-          ➕ add user
-        </button>
+        <div>
+          <AddItemButton
+            onClick={() => users.append({ name: "", password: "changeme" })}
+          >
+            User
+          </AddItemButton>
+        </div>
         <Buttons>
           <ResetButton
             onClick={() => {
