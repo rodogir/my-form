@@ -184,7 +184,7 @@ export function useFormField(name: string) {
     value,
     // todo: add support for non event (maybe use a separate hook for cleaner code)
     onChange: (event: ChangeEvent<HTMLInputElement>) => {
-      setValue(name, event.target.value);
+      setValue(name, event.currentTarget.value);
     },
   };
 }
