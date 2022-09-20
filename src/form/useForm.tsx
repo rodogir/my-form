@@ -52,7 +52,7 @@ export function useForm({ defaultValues }: UseFormOptions) {
       update,
       setValue: (name: string, value: any) => {
         update((current) => {
-          setIn(current, `values.${name}`, value);
+          setIn(current.values, name, value);
         });
       },
       setState: (state: FormState) => {
