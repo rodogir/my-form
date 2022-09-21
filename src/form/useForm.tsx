@@ -212,6 +212,21 @@ export function useFormField(name: string) {
   };
 }
 
+export function useCheckbox(name: string) {
+  const { store, setValue } = useFormContext();
+  const checked = useSyncExternalStore(store.subscribe, () => {
+    return getIn(store.getSnapshot().values, name);
+  });
+
+  return {
+    name,
+    checked,
+    onChange: (event: ChangeEvent<HTMLInputElement>) => {
+      setValue(name, event.currentTarget.checked);
+    },
+  };
+}
+
 export function useFormStateField(
   field: keyof FormStateValue,
   instance?: FormInstance

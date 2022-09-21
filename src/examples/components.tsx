@@ -1,11 +1,11 @@
 import {
   ArrowUturnLeftIcon,
   PaperAirplaneIcon,
-  TrashIcon,
   PlusIcon,
+  TrashIcon,
 } from "@heroicons/react/24/outline";
 import { ReactNode, useId } from "react";
-import { useFormField } from "../form/useForm";
+import { useCheckbox, useFormField } from "../form/useForm";
 
 interface TextInputFieldProps {
   name: string;
@@ -28,6 +28,17 @@ export function TextInputField({ name, label }: TextInputFieldProps) {
         className="appearance-none block w-full h-11 px-3 py-2 text-gray-700 bg-white border-2 border-gray-200 rounded-md focus:border-teal-400 focus:ring-teal-300 focus:ring-opacity-40 focus:outline-none focus:ring"
         {...props}
       />
+    </div>
+  );
+}
+
+export function Checkbox({ name, label }: TextInputFieldProps) {
+  const id = useId();
+  const props = useCheckbox(name);
+  return (
+    <div>
+      <input type="checkbox" id={id} {...props} />
+      {label && <label htmlFor={id}>{label}</label>}
     </div>
   );
 }
