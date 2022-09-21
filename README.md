@@ -5,7 +5,8 @@
 - [x] isolated rendering
 - [x] submit state
 - [ ] form field state (touched, dirty, valid, error, ...)
-- [ ] form values effects
+- [x] form values effects
+- [ ] async effects
 - [ ] validation support with a function
 - [x] prevent submit spamming
 - [ ] disable submit button in "submitting" and "submitted" states

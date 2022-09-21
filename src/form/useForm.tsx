@@ -15,9 +15,10 @@ import { produce } from "immer";
 
 export interface UseFormOptions {
   defaultValues: FormValues;
+  effects?: Record<string, FormEffect>;
 }
 
-export function useForm({ defaultValues }: UseFormOptions) {
+export function useForm({ defaultValues, effects }: UseFormOptions) {
   const subscribersRef = useRef(new Set<Subscriber>());
   const stateRef = useRef<FormStateValue>({
     values: defaultValues,
@@ -31,6 +32,10 @@ export function useForm({ defaultValues }: UseFormOptions) {
     subscribersRef.current.forEach((fn) => fn());
   });
 
+  const getEffects = useEvent(() => {
+    return effects;
+  });
+
   const initialValuesRef = useRef(defaultValues);
 
   const update = useEvent((updater: (current: FormStateValue) => void) => {
@@ -38,21 +43,33 @@ export function useForm({ defaultValues }: UseFormOptions) {
     publishState(nextState);
   });
 
+  const store = useMemo(
+    () => ({
+      getSnapshot: () => stateRef.current,
+      subscribe: (listener: () => void) => {
+        subscribersRef.current.add(listener);
+        return () => {
+          subscribersRef.current.delete(listener);
+        };
+      },
+    }),
+    []
+  );
+
   return useMemo(
     () => ({
-      store: {
-        getSnapshot: () => stateRef.current,
-        subscribe: (listener: () => void) => {
-          subscribersRef.current.add(listener);
-          return () => {
-            subscribersRef.current.delete(listener);
-          };
-        },
-      },
+      store,
       update,
+      getValues: () => store.getSnapshot().values,
       setValue: (name: string, value: any) => {
+        const effects = getEffects();
         update((current) => {
           setIn(current.values, name, value);
+          effects?.[name]?.(value, {
+            getValues: () => store.getSnapshot().values,
+            setValue: (name: string, value: string) =>
+              setIn(current.values, name, value),
+          });
         });
       },
       setState: (state: FormState) => {
@@ -104,6 +121,11 @@ type FormValues = Record<string, any>;
 type FieldArrayState = Record<string, { fields: { key: string }[] }>;
 type Subscriber = () => void;
 type FormState = "valid" | "submitted" | "submitting" | "error";
+type FormEffect = (
+  value: string,
+  form: Pick<FormInstance, "getValues" | "setValue">
+) => void;
+
 interface FormStateValue {
   values: FormValues;
   arrays: FieldArrayState;
@@ -119,6 +141,7 @@ interface FormStateValue {
 
 const FormContext = createContext<FormInstance>({
   defaultValues: {},
+  getValues: () => ({}),
   setValue: () => {},
   setState: () => {},
   reset: () => {},

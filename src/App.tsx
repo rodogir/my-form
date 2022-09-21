@@ -1,4 +1,5 @@
 import { Hr } from "./examples/components";
+import { Effects } from "./examples/Effects";
 import { FieldArray } from "./examples/FieldArray";
 import { Simple } from "./examples/Simple";
 
@@ -8,6 +9,8 @@ export function App() {
       <Simple />
       <Hr />
       <FieldArray />
+      <Hr />
+      <Effects />
       <Hr />
     </div>
   );

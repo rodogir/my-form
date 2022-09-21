@@ -127,3 +127,7 @@ export function RemoveItemButton({ onClick }: { onClick: () => void }) {
 export function Hr() {
   return <hr className="my-10 border-gray-200 dark:border-gray-300" />;
 }
+
+export function P({ children }: { children: ReactNode }) {
+  return <p className="text-gray-500 dark:text-gray-400">{children}</p>;
+}
