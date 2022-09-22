@@ -1,7 +1,34 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import react from "@vitejs/plugin-react";
+import { resolve } from "path";
+import { defineConfig } from "vite";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()]
-})
+  plugins: [react()],
+  resolve: {
+    alias: {
+      "@lib/form": resolve(__dirname, "lib/main"),
+    },
+  },
+  build: {
+    lib: {
+      entry: resolve(__dirname, "lib/main.tsx"),
+      name: "myForm",
+      fileName: "form",
+    },
+    rollupOptions: {
+      external: ["react"],
+      output: {
+        globals: {
+          react: "React",
+        },
+      },
+    },
+  },
+  define: {
+    "import.meta.vitest": "undefined",
+  },
+  test: {
+    includeSource: ["lib/**/*.{ts,tsx}"],
+  },
+});

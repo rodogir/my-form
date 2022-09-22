@@ -11,6 +11,7 @@ node_modules
 dist
 dist-ssr
 *.local
+coverage
 
 # Editor directories and files
 .vscode/*
@@ -31,3 +32,4 @@ dist-ssr
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
