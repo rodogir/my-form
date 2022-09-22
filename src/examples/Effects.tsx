@@ -1,6 +1,7 @@
 import { Form, useForm } from "../form/useForm";
 import {
   Buttons,
+  Checkbox,
   P,
   ResetButton,
   Section,
@@ -12,9 +13,13 @@ import { FormStateMessage, waitFor } from "./helpers";
 export function Effects() {
   const form = useForm({
     defaultValues: {
-      firstName: "Peter",
-      lastName: "Parker",
+      firstName: "",
+      lastName: "",
       fullName: "",
+      quantityKg: "",
+      quantityPc: "",
+      factor: "",
+      locked: true,
     },
     effects: {
       firstName: (value, { setValue, getValues }) => {
@@ -24,6 +29,34 @@ export function Effects() {
       lastName: (value, { setValue, getValues }) => {
         const firstName = getValues().firstName;
         setValue("fullName", `${firstName} ${value}`);
+      },
+      quantityKg: (value, { setValue, getValues }) => {
+        const { factor, locked, quantityPc } = getValues();
+        if (!locked) {
+          const factor = parseFloat(value) / parseFloat(quantityPc);
+          if (!isNaN(factor) && isFinite(factor)) {
+            setValue("factor", factor.toString());
+          }
+          return;
+        }
+        const otherQuantity = parseFloat(value) / parseFloat(factor);
+        if (!isNaN(otherQuantity) && isFinite(otherQuantity)) {
+          setValue("quantityPc", otherQuantity.toString());
+        }
+      },
+      quantityPc: (value, { setValue, getValues }) => {
+        const { factor, locked, quantityKg } = getValues();
+        if (!locked) {
+          const factor = parseFloat(quantityKg) / parseFloat(value);
+          if (!isNaN(factor) && isFinite(factor)) {
+            setValue("factor", factor.toString());
+          }
+          return;
+        }
+        const otherQuantity = parseFloat(value) * parseFloat(factor);
+        if (!isNaN(otherQuantity) && isFinite(otherQuantity)) {
+          setValue("quantityKg", otherQuantity.toString());
+        }
       },
     },
   });
@@ -51,6 +84,12 @@ export function Effects() {
           <TextInputField name="firstName" label="Given name" />
           <TextInputField name="lastName" label="Last name" />
           <TextInputField name="fullName" label="Full name" />
+        </div>
+        <div className="flex gap-2">
+          <TextInputField name="quantityKg" label="Kg" />
+          <TextInputField name="quantityPc" label="Pieces" />
+          <TextInputField name="factor" label="Factor" readOnly />
+          <Checkbox name="locked" />
         </div>
         <Buttons>
           <ResetButton

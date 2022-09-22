@@ -10,9 +10,10 @@ import { useCheckbox, useFormField } from "../form/useForm";
 interface TextInputFieldProps {
   name: string;
   label?: string;
+  readOnly?: boolean;
 }
 
-export function TextInputField({ name, label }: TextInputFieldProps) {
+export function TextInputField({ name, label, readOnly }: TextInputFieldProps) {
   const props = useFormField(name);
   const id = useId();
   return (
@@ -26,6 +27,7 @@ export function TextInputField({ name, label }: TextInputFieldProps) {
         id={id}
         type="text"
         className="appearance-none block w-full h-11 px-3 py-2 text-gray-700 bg-white border-2 border-gray-200 rounded-md focus:border-teal-400 focus:ring-teal-300 focus:ring-opacity-40 focus:outline-none focus:ring"
+        readOnly={readOnly}
         {...props}
       />
     </div>
