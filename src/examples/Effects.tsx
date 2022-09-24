@@ -23,38 +23,38 @@ export function Effects() {
     },
     effects: {
       firstName: (value, { setValue, getValues }) => {
-        const lastName = getValues().lastName;
+        const { lastName } = getValues();
         setValue("fullName", `${value} ${lastName}`);
       },
       lastName: (value, { setValue, getValues }) => {
-        const firstName = getValues().firstName;
+        const { firstName } = getValues();
         setValue("fullName", `${firstName} ${value}`);
       },
       quantityKg: (value, { setValue, getValues }) => {
         const { factor, locked, quantityPc } = getValues();
         if (!locked) {
-          const factor = parseFloat(value) / parseFloat(quantityPc);
-          if (!isNaN(factor) && isFinite(factor)) {
-            setValue("factor", factor.toString());
+          const newFactor = parseFloat(value) / parseFloat(quantityPc);
+          if (!Number.isNaN(newFactor) && Number.isFinite(newFactor)) {
+            setValue("factor", newFactor.toString());
           }
           return;
         }
         const otherQuantity = parseFloat(value) / parseFloat(factor);
-        if (!isNaN(otherQuantity) && isFinite(otherQuantity)) {
+        if (!Number.isNaN(otherQuantity) && Number.isFinite(otherQuantity)) {
           setValue("quantityPc", otherQuantity.toString());
         }
       },
       quantityPc: (value, { setValue, getValues }) => {
         const { factor, locked, quantityKg } = getValues();
         if (!locked) {
-          const factor = parseFloat(quantityKg) / parseFloat(value);
-          if (!isNaN(factor) && isFinite(factor)) {
-            setValue("factor", factor.toString());
+          const newFactor = parseFloat(quantityKg) / parseFloat(value);
+          if (!Number.isNaN(newFactor) && Number.isFinite(newFactor)) {
+            setValue("factor", newFactor.toString());
           }
           return;
         }
         const otherQuantity = parseFloat(value) * parseFloat(factor);
-        if (!isNaN(otherQuantity) && isFinite(otherQuantity)) {
+        if (!Number.isNaN(otherQuantity) && Number.isFinite(otherQuantity)) {
           setValue("quantityKg", otherQuantity.toString());
         }
       },
@@ -63,6 +63,7 @@ export function Effects() {
 
   const simulateSubmit = async (values: any) => {
     await waitFor(850);
+    // eslint-disable-next-line no-console
     console.log("submitted", values);
     if (values.submit === "error") {
       form.setState("error");
@@ -73,7 +74,7 @@ export function Effects() {
 
   return (
     <Section title="Effects">
-      <P>Effects don't trigger effects on fields they change!</P>
+      <P>Effects don&apos;t trigger effects on fields they change!</P>
       <Form
         id="sample-1"
         formInstance={form}

@@ -20,6 +20,7 @@ export function Simple() {
 
   const simulateSubmit = async (values: any) => {
     await waitFor(850);
+    // eslint-disable-next-line no-console
     console.log("submitted", values);
     if (values.submit === "error") {
       form.setState("error");

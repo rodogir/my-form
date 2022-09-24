@@ -75,8 +75,8 @@ type Paths<T, D extends number = 10> = [D] extends [never]
     }[keyof T]
   : "";
 
-type Leaves<T, D extends number = 10> = [D] extends [never]
-  ? never
-  : T extends object
-  ? { [K in keyof T]-?: Join<K, Leaves<T[K], Prev[D]>> }[keyof T]
-  : "";
+// type Leaves<T, D extends number = 10> = [D] extends [never]
+//   ? never
+//   : T extends object
+//   ? { [K in keyof T]-?: Join<K, Leaves<T[K], Prev[D]>> }[keyof T]
+//   : "";

@@ -1,8 +1,7 @@
+import { produce } from "immer";
+import type { ChangeEvent, FormEvent, ReactNode } from "react";
 import {
-  ChangeEvent,
   createContext,
-  FormEvent,
-  ReactNode,
   useContext,
   useMemo,
   useRef,
@@ -10,8 +9,6 @@ import {
 } from "react";
 import { useEvent } from "./useEvent";
 import { get, set } from "./utils";
-
-import { produce } from "immer";
 
 export interface UseFormOptions {
   defaultValues: FormValues;
@@ -32,9 +29,7 @@ export function useForm({ defaultValues, effects }: UseFormOptions) {
     subscribersRef.current.forEach((fn) => fn());
   });
 
-  const getEffects = useEvent(() => {
-    return effects;
-  });
+  const getEffects = useEvent(() => effects);
 
   const initialValuesRef = useRef(defaultValues);
 
@@ -62,13 +57,12 @@ export function useForm({ defaultValues, effects }: UseFormOptions) {
       update,
       getValues: () => store.getSnapshot().values,
       setValue: (name: string, value: any) => {
-        const effects = getEffects();
+        const effcts = getEffects();
         update((current) => {
           set(current.values, name, value);
-          effects?.[name]?.(value, {
+          effcts?.[name]?.(value, {
             getValues: () => store.getSnapshot().values,
-            setValue: (name: string, value: string) =>
-              set(current.values, name, value),
+            setValue: (n: string, v: string) => set(current.values, n, v),
           });
         });
       },
@@ -95,7 +89,7 @@ export function useForm({ defaultValues, effects }: UseFormOptions) {
         });
       },
     }),
-    []
+    [getEffects, publishState, store, update]
   );
 }
 
@@ -194,13 +188,13 @@ export function Form({
   );
 }
 
-type FormValue = "string";
+// type FormValue = "string";
 
 export function useFormField(name: string) {
   const { store, setValue } = useFormContext();
-  const value = useSyncExternalStore(store.subscribe, () => {
-    return get(store.getSnapshot().values, name);
-  });
+  const value = useSyncExternalStore(store.subscribe, () =>
+    get(store.getSnapshot().values, name)
+  );
 
   return {
     name,
@@ -214,9 +208,9 @@ export function useFormField(name: string) {
 
 export function useCheckbox(name: string) {
   const { store, setValue } = useFormContext();
-  const checked = useSyncExternalStore(store.subscribe, () => {
-    return get(store.getSnapshot().values, name);
-  });
+  const checked = useSyncExternalStore(store.subscribe, () =>
+    get(store.getSnapshot().values, name)
+  );
 
   return {
     name,
@@ -234,9 +228,10 @@ export function useFormStateField(
   const contextForm = useFormContext();
   const { store } = instance ?? contextForm;
 
-  return useSyncExternalStore(store.subscribe, () => {
-    return store.getSnapshot()[field];
-  });
+  return useSyncExternalStore(
+    store.subscribe,
+    () => store.getSnapshot()[field]
+  );
 }
 
 export function useFormState(instance?: FormInstance) {
@@ -251,9 +246,10 @@ export function useFieldArray(name: string, instance?: FormInstance) {
   const contextForm = useFormContext();
   const { store, update } = instance ?? contextForm;
 
-  const arrays = useSyncExternalStore(store.subscribe, () => {
-    return store.getSnapshot().arrays[name];
-  });
+  const arrays = useSyncExternalStore(
+    store.subscribe,
+    () => store.getSnapshot().arrays[name]
+  );
 
   return {
     fields: arrays.fields.map(({ key }, idx) => ({
