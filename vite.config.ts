@@ -3,7 +3,7 @@ import { resolve } from "path";
 import { defineConfig } from "vitest/config";
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(() => ({
   plugins: [react()],
   resolve: {
     alias: {
@@ -15,20 +15,14 @@ export default defineConfig({
       entry: resolve(__dirname, "lib/main.tsx"),
       name: "myForm",
       fileName: "form",
+      formats: ["es"],
     },
     rollupOptions: {
-      external: ["react"],
-      output: {
-        globals: {
-          react: "React",
-        },
-      },
+      external: ["react", "immer", "react/jsx-runtime"],
     },
   },
-  define: {
-    "import.meta.vitest": "undefined",
-  },
+  define: { "import.meta.vitest": "undefined" },
   test: {
     includeSource: ["lib/**/*.{ts,tsx}"],
   },
-});
+}));
