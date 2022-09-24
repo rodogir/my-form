@@ -451,6 +451,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@rodogir/prettier-config@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "@rodogir/prettier-config@npm:0.6.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40rodogir%2Fprettier-config%2F0.6.0%2Fa71e3c234f8ded6b84fa1814043fdef44ed08996"
+  peerDependencies:
+    prettier: 2
+  checksum: 51bb47d7d00116459c35c185b29ca1161b731a0c26b6b8ba03e949b7e927fb0188799c9298c7c75aa7c209bd335c053e754a450da7e46b30a05b8bff248e322d
+  languageName: node
+  linkType: hard
+
 "@tootallnate/once@npm:2":
   version: 2.0.0
   resolution: "@tootallnate/once@npm:2.0.0"
@@ -2048,6 +2057,7 @@ __metadata:
   resolution: "my-form@workspace:."
   dependencies:
     "@heroicons/react": ^2.0.11
+    "@rodogir/prettier-config": ^0.6.0
     "@types/react": ^18.0.17
     "@types/react-dom": ^18.0.6
     "@vitejs/plugin-react": ^2.1.0
@@ -2055,6 +2065,7 @@ __metadata:
     autoprefixer: ^10.4.12
     immer: ^9.0.15
     postcss: ^8.4.16
+    prettier: ^2.7.1
     react: ^18.2.0
     react-dom: ^18.2.0
     tailwindcss: ^3.1.8
@@ -2321,6 +2332,15 @@ __metadata:
     picocolors: ^1.0.0
     source-map-js: ^1.0.2
   checksum: 10eee25efd77868036403858577da0cefaf2e0905feeaba5770d5438ccdddba3d01cba8063e96b8aac4c6daa0ed413dd5ae0554a433a3c4db38df1d134cffc1f
+  languageName: node
+  linkType: hard
+
+"prettier@npm:^2.7.1":
+  version: 2.7.1
+  resolution: "prettier@npm:2.7.1"
+  bin:
+    prettier: bin-prettier.js
+  checksum: 55a4409182260866ab31284d929b3cb961e5fdb91fe0d2e099dac92eaecec890f36e524b4c19e6ceae839c99c6d7195817579cdffc8e2c80da0cb794463a748b
   languageName: node
   linkType: hard
 
