@@ -1,5 +1,5 @@
 import { FireIcon } from "@heroicons/react/24/outline";
-import { Form, useForm } from "../form/useForm";
+import { Form, useForm } from "../../lib/main";
 import {
   Buttons,
   ResetButton,

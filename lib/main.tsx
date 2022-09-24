@@ -9,7 +9,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import { useEvent } from "./useEvent";
-import { getIn, setIn } from "./utils";
+import { get, set } from "./utils";
 
 import { produce } from "immer";
 
@@ -64,11 +64,11 @@ export function useForm({ defaultValues, effects }: UseFormOptions) {
       setValue: (name: string, value: any) => {
         const effects = getEffects();
         update((current) => {
-          setIn(current.values, name, value);
+          set(current.values, name, value);
           effects?.[name]?.(value, {
             getValues: () => store.getSnapshot().values,
             setValue: (name: string, value: string) =>
-              setIn(current.values, name, value),
+              set(current.values, name, value),
           });
         });
       },
@@ -199,7 +199,7 @@ type FormValue = "string";
 export function useFormField(name: string) {
   const { store, setValue } = useFormContext();
   const value = useSyncExternalStore(store.subscribe, () => {
-    return getIn(store.getSnapshot().values, name);
+    return get(store.getSnapshot().values, name);
   });
 
   return {
@@ -215,7 +215,7 @@ export function useFormField(name: string) {
 export function useCheckbox(name: string) {
   const { store, setValue } = useFormContext();
   const checked = useSyncExternalStore(store.subscribe, () => {
-    return getIn(store.getSnapshot().values, name);
+    return get(store.getSnapshot().values, name);
   });
 
   return {

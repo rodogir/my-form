@@ -1,4 +1,4 @@
-import { Form, useForm } from "../form/useForm";
+import { Form, useForm } from "../../lib/main";
 import {
   Buttons,
   Checkbox,

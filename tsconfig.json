@@ -17,6 +17,11 @@
     "jsx": "react-jsx",
     "types": ["vitest/importMeta"]
   },
-  "include": ["src"],
+  "baseUrl": "./",
+  "paths": {
+    "*": ["web_modules/.types/*"],
+    "@lib/*": ["lib/*"]
+  },
+  "include": ["src", "lib"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
