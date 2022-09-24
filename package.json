@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "test": "vitest",
     "coverage": "vitest run --coverage",
-    "format": "prettier --write \"**/*.{cjs,js,json,ts,tsx,md,html,yml}\""
+    "format": "prettier --write \"**/*.{cjs,js,json,ts,tsx,md,html,yml}\"",
+    "lint": "eslint \"./**/*.{cjs,js,jsx,ts,tsx}\" --cache"
   },
   "dependencies": {
     "@heroicons/react": "^2.0.11",
@@ -18,12 +19,14 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@rodogir/eslint-config": "^0.6.3",
     "@rodogir/prettier-config": "^0.6.0",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",
     "@vitejs/plugin-react": "^2.1.0",
     "@vitest/coverage-c8": "^0.23.4",
     "autoprefixer": "^10.4.12",
+    "eslint": "^8.24.0",
     "postcss": "^8.4.16",
     "prettier": "^2.7.1",
     "tailwindcss": "^3.1.8",
