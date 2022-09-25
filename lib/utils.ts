@@ -21,8 +21,8 @@ if (import.meta.vitest) {
     expect(get(mixed, "a.b")).toEqual(mixed.a.b);
     expect(get(mixed, "a.b.0")).toEqual(mixed.a.b[0]);
     expect(get(mixed, "a.b.1")).toEqual(mixed.a.b[1]);
-    expect(get(mixed, "a.b.0.c")).toBe(mixed.a.b[0].c);
-    expect(get(mixed, "a.b.1.c")).toBe(mixed.a.b[1].c);
+    expect(get(mixed, "a.b.0.c")).toBe(mixed.a.b[0]?.c);
+    expect(get(mixed, "a.b.1.c")).toBe(mixed.a.b[1]?.c);
     expect(get(mixed, "a.b.2.c")).toBe(undefined);
   });
 }

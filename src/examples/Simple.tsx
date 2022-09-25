@@ -14,7 +14,6 @@ export function Simple() {
     defaultValues: {
       firstName: "Peter",
       lastName: "Parker",
-      fullName: "",
     },
   });
 
@@ -40,7 +39,6 @@ export function Simple() {
         <div className="grid grid-cols-3 gap-2">
           <TextInputField name="firstName" label="Given name" />
           <TextInputField name="lastName" label="Last name" />
-          <TextInputField name="fullName" label="Full name" />
         </div>
         <Buttons>
           <ResetButton

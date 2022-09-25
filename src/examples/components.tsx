@@ -4,7 +4,7 @@ import {
   PlusIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
-import type { ReactNode} from "react";
+import type { ReactNode } from "react";
 import { useId } from "react";
 import { useCheckbox, useFormField } from "../../lib/main";
 
@@ -15,8 +15,11 @@ interface TextInputFieldProps {
 }
 
 export function TextInputField({ name, label, readOnly }: TextInputFieldProps) {
-  const props = useFormField(name);
+  const [props, meta] = useFormField(name);
   const id = useId();
+  const dirtyClassNames = meta.isDirty ? "border-orange-400" : "";
+  const touchedClassNames = meta.isTouched ? "border-sky-400" : "";
+
   return (
     <div>
       {label && (
@@ -27,7 +30,9 @@ export function TextInputField({ name, label, readOnly }: TextInputFieldProps) {
       <input
         id={id}
         type="text"
-        className="appearance-none block w-full h-11 px-3 py-2 text-gray-700 bg-white border-2 border-gray-200 rounded-md focus:border-teal-400 focus:ring-teal-300 focus:ring-opacity-40 focus:outline-none focus:ring"
+        className={`appearance-none block w-full h-11 px-3 py-2 text-gray-700 bg-white border-2 border-gray-200 rounded-md focus:border-teal-400 focus:ring-teal-300 focus:ring-opacity-40 focus:outline-none focus:ring ${
+          dirtyClassNames || touchedClassNames
+        }`}
         readOnly={readOnly}
         {...props}
       />
@@ -55,7 +60,7 @@ export function SubmitButton({
   value: string;
   children?: ReactNode;
 }) {
-  const { onChange } = useFormField(name);
+  const [{ onChange }] = useFormField(name);
   return (
     <button
       type="submit"

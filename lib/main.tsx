@@ -7,7 +7,7 @@ import {
   useRef,
   useSyncExternalStore,
 } from "react";
-import type { FormStateValue } from "./form-state";
+import type { FieldMeta, FormStateValue } from "./form-state";
 import { useEvent } from "./useEvent";
 import { get, set } from "./utils";
 
@@ -19,6 +19,7 @@ export interface UseFormOptions {
 export function useForm({ defaultValues, effects }: UseFormOptions) {
   const subscribersRef = useRef(new Set<Subscriber>());
   const stateRef = useRef<FormStateValue>({
+    defaultValues,
     values: defaultValues,
     arrays: findFieldArrays(defaultValues),
     fieldMeta: {},
@@ -31,8 +32,6 @@ export function useForm({ defaultValues, effects }: UseFormOptions) {
   });
 
   const getEffects = useEvent(() => effects);
-
-  const initialValuesRef = useRef(defaultValues);
 
   const update = useEvent((updater: (current: FormStateValue) => void) => {
     const nextState = produce(stateRef.current, updater);
@@ -57,10 +56,27 @@ export function useForm({ defaultValues, effects }: UseFormOptions) {
       store,
       update,
       getValues: () => store.getSnapshot().values,
-      setValue: (name: string, value: any) => {
+      setValue: (
+        name: string,
+        value: any,
+        options?: { isTouched: boolean }
+      ) => {
         const effcts = getEffects();
         update((current) => {
           set(current.values, name, value);
+          const currentMeta = current.fieldMeta[name] ?? {
+            isDirty: false,
+            isTouched: false,
+          };
+          const isDirty = value !== get(current.defaultValues, name);
+          const isTouched = options?.isTouched ?? currentMeta.isTouched;
+          if (
+            currentMeta.isDirty !== isDirty ||
+            currentMeta.isTouched !== isTouched
+          ) {
+            // eslint-disable-next-line no-param-reassign
+            current.fieldMeta[name] = { isDirty, isTouched };
+          }
           effcts?.[name]?.(value, {
             getValues: () => store.getSnapshot().values,
             setValue: (n: string, v: string) => set(current.values, n, v),
@@ -82,17 +98,19 @@ export function useForm({ defaultValues, effects }: UseFormOptions) {
         };
         publishState(nextState);
       },
-      defaultValues: initialValuesRef.current,
-      reset: (values: FormValues = initialValuesRef.current) => {
+      // defaultValues: initialValuesRef.current,
+      reset: (values?: FormValues) => {
         const currentState = stateRef.current;
+        const newDefaultValues = values ?? currentState.defaultValues;
         publishState({
-          values,
+          defaultValues: newDefaultValues,
+          values: newDefaultValues,
           formMeta: {
             state: "valid",
             submitCount: currentState.formMeta.submitCount,
           },
           fieldMeta: {},
-          arrays: findFieldArrays(values),
+          arrays: findFieldArrays(newDefaultValues),
         });
       },
     }),
@@ -128,7 +146,6 @@ type FormEffect = (
 ) => void;
 
 const FormContext = createContext<FormInstance>({
-  defaultValues: {},
   getValues: () => ({}),
   setValue: () => {},
   setState: () => {},
@@ -136,6 +153,7 @@ const FormContext = createContext<FormInstance>({
   update: () => {},
   store: {
     getSnapshot: () => ({
+      defaultValues: {},
       values: {},
       arrays: {},
       fieldMeta: {},
@@ -188,21 +206,37 @@ export function Form({
 export function useFormField(name: string) {
   const { setValue } = useFormContext();
   const value = useFieldValue(name);
+  const meta = useFieldMeta(name);
 
-  return {
-    name,
-    value,
-    // todo: add support for non event (maybe use a separate hook for cleaner code)
-    onChange: (event: ChangeEvent<HTMLInputElement>) => {
-      setValue(name, event.currentTarget.value);
+  return [
+    {
+      name,
+      value,
+      // todo: add support for non event (maybe use a separate hook for cleaner code)
+      onChange: (event: ChangeEvent<HTMLInputElement>) => {
+        setValue(name, event.currentTarget.value, { isTouched: true });
+      },
     },
-  };
+    meta,
+  ] as const;
 }
 
 function useFieldValue(name: string) {
   const { store } = useFormContext();
   return useSyncExternalStore(store.subscribe, () =>
     get(store.getSnapshot().values, name)
+  );
+}
+
+const defaultFieldMeta: FieldMeta = { isDirty: false, isTouched: false };
+
+export function useFieldMeta(name: string) {
+  const { store } = useFormContext();
+  return (
+    useSyncExternalStore(
+      store.subscribe,
+      () => store.getSnapshot().fieldMeta[name]
+    ) ?? defaultFieldMeta
   );
 }
 
@@ -214,7 +248,7 @@ export function useCheckbox(name: string) {
     name,
     checked,
     onChange: (event: ChangeEvent<HTMLInputElement>) => {
-      setValue(name, event.currentTarget.checked);
+      setValue(name, event.currentTarget.checked, { isTouched: true });
     },
   };
 }
@@ -246,20 +280,21 @@ export function useFieldArray(name: string, instance?: FormInstance) {
   );
 
   return {
-    fields: arrays.fields.map(({ key }, idx) => ({
-      key,
-      name: `${name}.${idx}`,
-    })),
+    fields:
+      arrays?.fields.map(({ key }, idx) => ({
+        key,
+        name: `${name}.${idx}`,
+      })) ?? [],
     append: useEvent((value) => {
       update((current) => {
         current.values[name].push(value);
-        current.arrays[name].fields.push({ key: generateRandId() });
+        current.arrays[name]?.fields.push({ key: generateRandId() });
       });
     }),
     remove: useEvent((index: number) => {
       update((current) => {
         current.values[name].splice(index, 1);
-        current.arrays[name].fields.splice(index, 1);
+        current.arrays[name]?.fields.splice(index, 1);
       });
     }),
   };
