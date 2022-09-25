@@ -127,12 +127,6 @@ interface FormStateValue {
   submitCount: number;
 }
 
-// function createFormState(defaultValues: any) {
-//   return {
-//     values: defaultValues,
-//   };
-// }
-
 const FormContext = createContext<FormInstance>({
   defaultValues: {},
   getValues: () => ({}),
@@ -188,13 +182,9 @@ export function Form({
   );
 }
 
-// type FormValue = "string";
-
 export function useFormField(name: string) {
-  const { store, setValue } = useFormContext();
-  const value = useSyncExternalStore(store.subscribe, () =>
-    get(store.getSnapshot().values, name)
-  );
+  const { setValue } = useFormContext();
+  const value = useFieldValue(name);
 
   return {
     name,
@@ -206,11 +196,16 @@ export function useFormField(name: string) {
   };
 }
 
-export function useCheckbox(name: string) {
-  const { store, setValue } = useFormContext();
-  const checked = useSyncExternalStore(store.subscribe, () =>
+function useFieldValue(name: string) {
+  const { store } = useFormContext();
+  return useSyncExternalStore(store.subscribe, () =>
     get(store.getSnapshot().values, name)
   );
+}
+
+export function useCheckbox(name: string) {
+  const { setValue } = useFormContext();
+  const checked = useFieldValue(name);
 
   return {
     name,
