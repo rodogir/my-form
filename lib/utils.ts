@@ -1,4 +1,4 @@
-export function get<O extends object>(object: O, path: Paths<O>): any {
+export function get<T extends object>(object: T, path: Path<T>): any {
   return getByPathArray(object, path.split("."));
 }
 
@@ -9,12 +9,12 @@ if (import.meta.vitest) {
     expect(get(object, "a")).toEqual(object.a);
     expect(get(object, "a.b")).toEqual(object.a.b);
     expect(get(object, "a.b.c")).toBe(object.a.b.c);
-    expect(get(object, "a.b.c.d")).toBe(undefined);
 
     const array = ["a", "b", "c"];
     expect(get(array, "0")).toEqual(array[0]);
     expect(get(array, "1")).toEqual(array[1]);
     expect(get(array, "2")).toEqual(array[2]);
+    expect(get(array, "3")).toEqual(undefined);
 
     const mixed = { a: { b: [{ c: 1 }, { c: 2 }] } };
     expect(get(mixed, "a")).toEqual(mixed.a);
@@ -23,7 +23,7 @@ if (import.meta.vitest) {
     expect(get(mixed, "a.b.1")).toEqual(mixed.a.b[1]);
     expect(get(mixed, "a.b.0.c")).toBe(mixed.a.b[0].c);
     expect(get(mixed, "a.b.1.c")).toBe(mixed.a.b[1].c);
-    expect(get(mixed, "a.b.1.c.d")).toBe(undefined);
+    expect(get(mixed, "a.b.2.c")).toBe(undefined);
   });
 }
 
@@ -33,7 +33,7 @@ function getByPathArray<O extends object>(object: O, path: string[]): any {
 
 export function set<T extends Record<string, unknown>>(
   object: T,
-  path: string,
+  path: Path<T>,
   value: unknown
 ): T {
   const pathSegments = path.split(".");
@@ -57,26 +57,37 @@ if (import.meta.vitest) {
   });
 }
 
-type Join<K, P> = K extends string | number
-  ? P extends string | number
-    ? `${K}${"" extends P ? "" : "."}${P}`
-    : never
-  : never;
+export type Path<T> = T extends ReadonlyArray<infer V>
+  ? IsTuple<T> extends true
+    ? {
+        [K in TupleKeys<T>]-?: PathRecursion<K & string, T[K]>;
+      }[TupleKeys<T>]
+    : PathRecursion<`${number}`, V>
+  : {
+      [K in keyof T]-?: PathRecursion<K & string, T[K]>;
+    }[keyof T];
 
-type Prev = [never, 0, 1, 2, 3, 4, 5, 6, 7, ...0[]];
+export type PathRecursion<K extends string, V> = V extends
+  | Primitive
+  | BrowserNativeObject
+  ? `${K & string}`
+  : `${K & string}` | `${K}.${Path<V>}`;
 
-type Paths<T, D extends number = 10> = [D] extends [never]
-  ? never
-  : T extends object
-  ? {
-      [K in keyof T]-?: K extends string | number
-        ? `${K}` | Join<K, Paths<T[K], Prev[D]>>
-        : never;
-    }[keyof T]
-  : "";
+export type Primitive =
+  | null
+  | undefined
+  | string
+  | number
+  | boolean
+  | symbol
+  | bigint;
 
-// type Leaves<T, D extends number = 10> = [D] extends [never]
-//   ? never
-//   : T extends object
-//   ? { [K in keyof T]-?: Join<K, Leaves<T[K], Prev[D]>> }[keyof T]
-//   : "";
+export type BrowserNativeObject = Date | FileList | File;
+
+export type IsTuple<T extends ReadonlyArray<unknown>> =
+  number extends T["length"] ? false : true;
+
+export type TupleKeys<T extends ReadonlyArray<unknown>> = Exclude<
+  keyof T,
+  keyof unknown[]
+>;

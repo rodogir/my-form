@@ -15,3 +15,4 @@
 - [x] submit count
 - [ ] debounce validation and prevent submit while validating
 - [ ] typed values
+- [ ] branded types (https://github.com/react-hook-form/react-hook-form/discussions/7354)
