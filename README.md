@@ -7,6 +7,8 @@
 - [x] isolated rendering
 - [x] submit state
 - [ ] form field state (touched, dirty, valid, error, ...)
+  - [x] touched, dirty
+  - [ ] field array support
 - [x] form values effects
 - ~async effects~ => useEffect instead
 - [ ] validation support with a function
@@ -19,6 +21,7 @@
 
 **nice to haves**
 
+- [ ] keep gzip size below 3KiB
 - [ ] disable submit button in "submitting" and "submitted" states
 - [ ] debounce validation?
 - [ ] typed values
