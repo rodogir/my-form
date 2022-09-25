@@ -1,4 +1,4 @@
-import { useFormState, useSubmitCount } from "../../lib/main";
+import { useFormMeta } from "../../lib/main";
 
 export function waitFor(ms: number) {
   return new Promise((resolve) => {
@@ -7,8 +7,7 @@ export function waitFor(ms: number) {
 }
 
 export function FormStateMessage() {
-  const state = useFormState();
-  const submitCount = useSubmitCount();
+  const { state, submitCount } = useFormMeta();
   return (
     <>
       {state === "submitting" && <p>Submitting ...</p>}

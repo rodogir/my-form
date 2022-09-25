@@ -19,7 +19,7 @@ export function Effects() {
       quantityKg: "",
       quantityPc: "",
       factor: "",
-      locked: true,
+      locked: false,
     },
     effects: {
       firstName: (value, { setValue, getValues }) => {

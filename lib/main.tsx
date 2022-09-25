@@ -7,6 +7,7 @@ import {
   useRef,
   useSyncExternalStore,
 } from "react";
+import type { FormStateValue } from "./form-state";
 import { useEvent } from "./useEvent";
 import { get, set } from "./utils";
 
@@ -20,8 +21,8 @@ export function useForm({ defaultValues, effects }: UseFormOptions) {
   const stateRef = useRef<FormStateValue>({
     values: defaultValues,
     arrays: findFieldArrays(defaultValues),
-    state: "valid",
-    submitCount: 0,
+    fieldMeta: {},
+    formMeta: { state: "valid", submitCount: 0 },
   });
 
   const publishState = useEvent((nextState: FormStateValue) => {
@@ -70,11 +71,14 @@ export function useForm({ defaultValues, effects }: UseFormOptions) {
         const currentState = stateRef.current;
         const nextState: FormStateValue = {
           ...stateRef.current,
-          state,
-          submitCount:
-            state === "submitted" && currentState.state !== "submitted"
-              ? currentState.submitCount + 1
-              : currentState.submitCount,
+          formMeta: {
+            state,
+            submitCount:
+              state === "submitted" &&
+              currentState.formMeta.state !== "submitted"
+                ? currentState.formMeta.submitCount + 1
+                : currentState.formMeta.submitCount,
+          },
         };
         publishState(nextState);
       },
@@ -82,10 +86,13 @@ export function useForm({ defaultValues, effects }: UseFormOptions) {
       reset: (values: FormValues = initialValuesRef.current) => {
         const currentState = stateRef.current;
         publishState({
-          state: "valid",
           values,
+          formMeta: {
+            state: "valid",
+            submitCount: currentState.formMeta.submitCount,
+          },
+          fieldMeta: {},
           arrays: findFieldArrays(values),
-          submitCount: currentState.submitCount,
         });
       },
     }),
@@ -120,13 +127,6 @@ type FormEffect = (
   form: Pick<FormInstance, "getValues" | "setValue">
 ) => void;
 
-interface FormStateValue {
-  values: FormValues;
-  arrays: FieldArrayState;
-  state: FormState;
-  submitCount: number;
-}
-
 const FormContext = createContext<FormInstance>({
   defaultValues: {},
   getValues: () => ({}),
@@ -138,8 +138,8 @@ const FormContext = createContext<FormInstance>({
     getSnapshot: () => ({
       values: {},
       arrays: {},
-      state: "valid",
-      submitCount: 0,
+      fieldMeta: {},
+      formMeta: { state: "valid", submitCount: 0 },
     }),
     subscribe: () => () => {},
   },
@@ -166,7 +166,10 @@ export function Form({
 }: FormProps) {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const { values, state } = formInstance.store.getSnapshot();
+    const {
+      values,
+      formMeta: { state },
+    } = formInstance.store.getSnapshot();
     if (state === "submitted" || state === "submitting") {
       return;
     }
@@ -229,12 +232,8 @@ export function useFormStateField(
   );
 }
 
-export function useFormState(instance?: FormInstance) {
-  return useFormStateField("state", instance);
-}
-
-export function useSubmitCount(instance?: FormInstance) {
-  return useFormStateField("submitCount", instance);
+export function useFormMeta(instance?: FormInstance) {
+  return useFormStateField("formMeta", instance);
 }
 
 export function useFieldArray(name: string, instance?: FormInstance) {
