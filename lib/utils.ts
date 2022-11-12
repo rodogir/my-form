@@ -1,5 +1,5 @@
 export function get<T extends object>(object: T, path: Path<T>): any {
-  return getByPathArray(object, path.split("."));
+  return getByPathArray(object, pathToArray(path));
 }
 
 if (import.meta.vitest) {
@@ -27,26 +27,43 @@ if (import.meta.vitest) {
   });
 }
 
-function getByPathArray<O extends object>(object: O, path: string[]): any {
+function pathToArray(path: string) {
+  return path.split(".");
+}
+
+function getByPathArray<T extends object>(object: T, path: string[]): any {
   return path.reduce((res, prop) => (res as any)?.[prop], object);
 }
 
-export function set<T extends Record<string, unknown>>(
+export function set<T extends Record<string, unknown> | unknown[]>(
   object: T,
   path: Path<T>,
   value: unknown
-): T {
-  const pathSegments = path.split(".");
-  const tail = pathSegments.pop();
+) {
+  return setByPathArray(object, pathToArray(path), value);
+}
 
-  const objectToUpdate =
-    pathSegments.length > 0 ? getByPathArray(object, pathSegments) : object;
+export function setByPathArray<T extends Record<string, unknown> | unknown[]>(
+  object: T,
+  pathArray: string[],
+  value: unknown
+): any {
+  const head = pathArray.slice(0, -1);
+  const tail = pathArray.slice(-1)[0];
 
-  if (tail) {
-    objectToUpdate[tail] = value;
+  const objectToUpdate = getByPathArray(object, head);
+  const updated = Array.isArray(objectToUpdate)
+    ? (() => {
+        const copy = [...objectToUpdate];
+        copy[tail] = value;
+        return copy;
+      })()
+    : { ...objectToUpdate, [tail]: value };
+
+  if (head.length === 0) {
+    return updated;
   }
-
-  return object;
+  return setByPathArray(object, head, updated);
 }
 
 if (import.meta.vitest) {
@@ -54,6 +71,12 @@ if (import.meta.vitest) {
   it("set", () => {
     const object = { a: { b: { c: "TEST" } } };
     expect(set(object, "a", "1")).toEqual({ a: "1" });
+    expect(set(object, "a.b", "1")).toEqual({ a: { b: "1" } });
+    expect(set(object, "a.b.c", "1")).toEqual({ a: { b: { c: "1" } } });
+
+    const array = ["a", "b", "c"];
+    expect(set(array, "0", "A")).toEqual(["A", "b", "c"]);
+    expect(set(array, "1", "B")).toEqual(["a", "B", "c"]);
   });
 }
 
