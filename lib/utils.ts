@@ -39,7 +39,7 @@ export function set<T extends Record<string, unknown> | unknown[]>(
   object: T,
   path: Path<T>,
   value: unknown
-) {
+): T {
   return setByPathArray(object, pathToArray(path), value);
 }
 
@@ -47,9 +47,13 @@ export function setByPathArray<T extends Record<string, unknown> | unknown[]>(
   object: T,
   pathArray: string[],
   value: unknown
-): any {
+): T {
   const head = pathArray.slice(0, -1);
   const tail = pathArray.slice(-1)[0];
+
+  if (!tail) {
+    return object;
+  }
 
   const objectToUpdate = getByPathArray(object, head);
   const updated = Array.isArray(objectToUpdate)
@@ -77,6 +81,14 @@ if (import.meta.vitest) {
     const array = ["a", "b", "c"];
     expect(set(array, "0", "A")).toEqual(["A", "b", "c"]);
     expect(set(array, "1", "B")).toEqual(["a", "B", "c"]);
+
+    const mixed = { a: { b: [{ c: 1 }, { c: 2 }] } };
+    expect(set(mixed, "a.b.0", "A")).toEqual({
+      a: { b: ["A", { c: 2 }] },
+    });
+    expect(set(mixed, "a.b.1.c", 10)).toEqual({
+      a: { b: [{ c: 1 }, { c: 10 }] },
+    });
   });
 }
 
