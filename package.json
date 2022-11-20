@@ -9,8 +9,8 @@
     "preview": "vite preview",
     "test": "vitest",
     "coverage": "vitest run --coverage",
-    "format": "prettier --write \"**/*.{cjs,js,json,ts,tsx,md,html,yml}\"",
-    "lint": "eslint \"./**/*.{cjs,js,jsx,ts,tsx}\" --cache"
+    "format": "rome format . --write",
+    "lint": "rome check ."
   },
   "dependencies": {
     "@heroicons/react": "^2.0.11",
