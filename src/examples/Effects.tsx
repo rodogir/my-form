@@ -89,7 +89,7 @@ export function Effects() {
 				<div className="flex gap-2">
 					<TextInputField name="quantityKg" label="Kg" />
 					<TextInputField name="quantityPc" label="Pieces" />
-					<TextInputField name="factor" label="Factor" readOnly />
+					<TextInputField name="factor" label="Factor" readOnly={true} />
 					<Checkbox name="locked" />
 				</div>
 				<Buttons>
