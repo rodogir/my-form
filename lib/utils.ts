@@ -59,7 +59,7 @@ export function setByPathArray<T extends Record<string, unknown> | unknown[]>(
   const updated = Array.isArray(objectToUpdate)
     ? (() => {
         const copy = [...objectToUpdate];
-        copy[tail] = value;
+        copy[Number.parseInt(tail, 10)] = value;
         return copy;
       })()
     : { ...objectToUpdate, [tail]: value };
@@ -90,6 +90,10 @@ if (import.meta.vitest) {
       a: { b: [{ c: 1 }, { c: 10 }] },
     });
   });
+}
+
+export function pipe<T>(...fns: ((value: T) => T)[]): (value: T) => T {
+  return (x: T) => fns.reduce((v, f) => f(v), x);
 }
 
 export type Path<T> = T extends ReadonlyArray<infer V>
