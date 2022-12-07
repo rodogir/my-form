@@ -100,7 +100,7 @@ export function Section({
 	children: ReactNode;
 }) {
 	return (
-		<section>
+		<section aria-label={title}>
 			<h1 className="text-2xl font-semibold text-gray-800 capitalize mb-6">
 				{title}
 			</h1>

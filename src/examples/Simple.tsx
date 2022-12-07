@@ -1,4 +1,5 @@
 import { FireIcon } from "@heroicons/react/24/outline";
+import { useState } from "react";
 import { Form, useForm } from "../../lib/main";
 import {
 	Buttons,
@@ -17,10 +18,13 @@ export function Simple() {
 		},
 	});
 
+	const [submitted, setSubmitted] = useState();
+
 	const simulateSubmit = async (values: any) => {
 		await waitFor(850);
 		// eslint-disable-next-line no-console
 		console.log("submitted", values);
+		setSubmitted(values);
 		if (values.submit === "error") {
 			form.setState("error");
 		} else {
@@ -41,17 +45,18 @@ export function Simple() {
 					<TextInputField name="lastName" label="Last name" />
 				</div>
 				<Buttons>
-					<ResetButton
-						onClick={() => {
-							form.reset();
-						}}
-					/>
+					<SubmitButton name="submit" value="success" />
 					<SubmitButton name="submit" value="error">
 						<FireIcon className="h-5 w-5 text-rose-700" />
 					</SubmitButton>
-					<SubmitButton name="submit" value="success" />
+					<ResetButton
+						onClick={() => {
+							form.reset();
+							setSubmitted(undefined);
+						}}
+					/>
 				</Buttons>
-				<FormStateMessage />
+				<FormStateMessage values={submitted} />
 			</Form>
 		</Section>
 	);
