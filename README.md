@@ -10,6 +10,7 @@
   - [x] touched, dirty
   - [ ] field array support
 - [x] form values effects
+- [ ] rename values effects to `synchronized` like naming (syncFields, syncs, synchronizedFields)
 - ~async effects~ => useEffect instead
 - [ ] validation support with a function
 - [ ] async validation
@@ -18,6 +19,7 @@
 - [x] field array support
 - [x] field array w/o object
 - [x] submit count
+- [ ] useSelector: called on every form change but only returns if value is new
 
 **nice to haves**
 
