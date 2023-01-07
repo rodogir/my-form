@@ -15,10 +15,10 @@ export function SynchronizedFields() {
 			firstName: "",
 			lastName: "",
 			fullName: "",
-			quantityKg: "",
-			quantityPc: "",
-			factor: "",
-			locked: false,
+			quantityKg: "0.25",
+			quantityPc: "1",
+			factor: "0.25",
+			locked: true,
 		},
 		synchronizedFields: {
 			firstName: ({ setValue, getValues }) => {
@@ -29,34 +29,34 @@ export function SynchronizedFields() {
 				const { firstName, lastName } = getValues();
 				setValue("fullName", `${firstName} ${lastName}`);
 			},
-			// quantityKg: (value, { setValue, getValues }) => {
-			// 	const { factor, locked, quantityPc } = getValues();
-			// 	if (!locked) {
-			// 		const newFactor = parseFloat(value) / parseFloat(quantityPc);
-			// 		if (!Number.isNaN(newFactor) && Number.isFinite(newFactor)) {
-			// 			setValue("factor", newFactor.toString());
-			// 		}
-			// 		return;
-			// 	}
-			// 	const otherQuantity = parseFloat(value) / parseFloat(factor);
-			// 	if (!Number.isNaN(otherQuantity) && Number.isFinite(otherQuantity)) {
-			// 		setValue("quantityPc", otherQuantity.toString());
-			// 	}
-			// },
-			// quantityPc: (value, { setValue, getValues }) => {
-			// 	const { factor, locked, quantityKg } = getValues();
-			// 	if (!locked) {
-			// 		const newFactor = parseFloat(quantityKg) / parseFloat(value);
-			// 		if (!Number.isNaN(newFactor) && Number.isFinite(newFactor)) {
-			// 			setValue("factor", newFactor.toString());
-			// 		}
-			// 		return;
-			// 	}
-			// 	const otherQuantity = parseFloat(value) * parseFloat(factor);
-			// 	if (!Number.isNaN(otherQuantity) && Number.isFinite(otherQuantity)) {
-			// 		setValue("quantityKg", otherQuantity.toString());
-			// 	}
-			// },
+			quantityKg: ({ setValue, getValues }) => {
+				const { factor, locked, quantityPc, quantityKg } = getValues();
+				if (!locked) {
+					const newFactor = parseFloat(quantityKg) / parseFloat(quantityPc);
+					if (!Number.isNaN(newFactor) && Number.isFinite(newFactor)) {
+						setValue("factor", newFactor.toString());
+					}
+					return;
+				}
+				const otherQuantity = parseFloat(quantityKg) / parseFloat(factor);
+				if (!Number.isNaN(otherQuantity) && Number.isFinite(otherQuantity)) {
+					setValue("quantityPc", otherQuantity.toString());
+				}
+			},
+			quantityPc: ({ setValue, getValues }) => {
+				const { factor, locked, quantityPc, quantityKg } = getValues();
+				if (!locked) {
+					const newFactor = parseFloat(quantityKg) / parseFloat(quantityPc);
+					if (!Number.isNaN(newFactor) && Number.isFinite(newFactor)) {
+						setValue("factor", newFactor.toString());
+					}
+					return;
+				}
+				const otherQuantity = parseFloat(quantityPc) * parseFloat(factor);
+				if (!Number.isNaN(otherQuantity) && Number.isFinite(otherQuantity)) {
+					setValue("quantityKg", otherQuantity.toString());
+				}
+			},
 		},
 	});
 
@@ -77,8 +77,8 @@ export function SynchronizedFields() {
 					<TextInputField name="fullName" label="Full name" />
 				</div>
 				<div className="flex gap-2">
-					<TextInputField name="quantityKg" label="Kg" />
 					<TextInputField name="quantityPc" label="Pieces" />
+					<TextInputField name="quantityKg" label="Kg" />
 					<TextInputField name="factor" label="Factor" readOnly={true} />
 					<Checkbox name="locked" />
 				</div>

@@ -10,7 +10,7 @@
   - [x] touched, dirty
   - [ ] field array support
 - [x] form values effects
-- [ ] rename values effects to `synchronized` like naming (syncFields, syncs, synchronizedFields)
+- [x] rename values effects to `synchronized` like naming (syncFields, syncs, synchronizedFields)
 - ~async effects~ => useEffect instead
 - [ ] validation support with a function
 - [ ] async validation
