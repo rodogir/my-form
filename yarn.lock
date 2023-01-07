@@ -180,12 +180,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@heroicons/react@npm:^2.0.11":
-  version: 2.0.11
-  resolution: "@heroicons/react@npm:2.0.11"
+"@heroicons/react@npm:~2.0.11":
+  version: 2.0.13
+  resolution: "@heroicons/react@npm:2.0.13"
   peerDependencies:
     react: ">= 16"
-  checksum: 9049e12bdb9bb1cc2ebc555877f538055ae01828bda781f0a7f3b2fe17aff8b6337d8562c5984bfe09ee77e95befd4e62854a58c9900c2e2650798b15ab807c3
+  checksum: f03c393a129cb468d103e4334815df956d7afa9d0756ee09b33e9396214d39b786523a5e650709de73c68ba085facda3fe01984ff137bcc16c85d4ed2498e663
   languageName: node
   linkType: hard
 
@@ -267,7 +267,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@playwright/test@npm:^1.28.1":
+"@playwright/test@npm:~1.28.1":
   version: 1.28.1
   resolution: "@playwright/test@npm:1.28.1"
   dependencies:
@@ -481,16 +481,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:^18.0.6":
-  version: 18.0.6
-  resolution: "@types/react-dom@npm:18.0.6"
+"@types/react-dom@npm:~18.0.6":
+  version: 18.0.10
+  resolution: "@types/react-dom@npm:18.0.10"
   dependencies:
     "@types/react": "*"
-  checksum: db571047af1a567631758700b9f7d143e566df939cfe5fbf7535347cc0c726a1cdbb5e3f8566d076e54cf708b6c1166689de194a9ba09ee35efc9e1d45911685
+  checksum: ff8282d5005a0b1cd95fb65bf79d3d8485e4cfe2aaf052129033a178684b940014a3f4536bc20d573f8a01cf4c6f4770c74988cef7c2b5cac3041d9f172647e3
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:^18.0.17":
+"@types/react@npm:*":
   version: 18.0.18
   resolution: "@types/react@npm:18.0.18"
   dependencies:
@@ -501,6 +501,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/react@npm:~18.0.17":
+  version: 18.0.26
+  resolution: "@types/react@npm:18.0.26"
+  dependencies:
+    "@types/prop-types": "*"
+    "@types/scheduler": "*"
+    csstype: ^3.0.2
+  checksum: b62f0ea3cdfa68e106391728325057ad36f1bde7ba2dfae029472c47e01e482bc77c6ba4f1dad59f3f04ee81cb597618ff7c30a33c157c0a20462b6dd6aa2d4d
+  languageName: node
+  linkType: hard
+
 "@types/scheduler@npm:*":
   version: 0.16.2
   resolution: "@types/scheduler@npm:0.16.2"
@@ -508,7 +519,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vitejs/plugin-react-swc@npm:^3.0.1":
+"@vitejs/plugin-react-swc@npm:~3.0.1":
   version: 3.0.1
   resolution: "@vitejs/plugin-react-swc@npm:3.0.1"
   dependencies:
@@ -519,7 +530,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vitest/coverage-c8@npm:^0.23.4":
+"@vitest/coverage-c8@npm:~0.23.4":
   version: 0.23.4
   resolution: "@vitest/coverage-c8@npm:0.23.4"
   dependencies:
@@ -675,7 +686,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"autoprefixer@npm:^10.4.13":
+"autoprefixer@npm:~10.4.13":
   version: 10.4.13
   resolution: "autoprefixer@npm:10.4.13"
   dependencies:
@@ -1480,7 +1491,7 @@ __metadata:
 
 "fsevents@patch:fsevents@~2.3.2#~builtin<compat/fsevents>":
   version: 2.3.2
-  resolution: "fsevents@patch:fsevents@npm%3A2.3.2#~builtin<compat/fsevents>::version=2.3.2&hash=18f3a7"
+  resolution: "fsevents@patch:fsevents@npm%3A2.3.2#~builtin<compat/fsevents>::version=2.3.2&hash=df0bf1"
   dependencies:
     node-gyp: latest
   conditions: os=darwin
@@ -1652,7 +1663,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"immer@npm:^9.0.17":
+"immer@npm:~9.0.17":
   version: 9.0.17
   resolution: "immer@npm:9.0.17"
   checksum: 046d562b74f050632d2861042dbcad49a5e86ffe5bb9b8bff6e699b1c7d8478019d9a3be61e72117cecc29826d2caa4fa927a7e10262381144dd33c735b9531c
@@ -2051,22 +2062,22 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "my-form@workspace:."
   dependencies:
-    "@heroicons/react": ^2.0.11
-    "@playwright/test": ^1.28.1
-    "@types/react": ^18.0.17
-    "@types/react-dom": ^18.0.6
-    "@vitejs/plugin-react-swc": ^3.0.1
-    "@vitest/coverage-c8": ^0.23.4
-    autoprefixer: ^10.4.13
-    immer: ^9.0.17
-    postcss: ^8.4.21
-    react: ^18.2.0
-    react-dom: ^18.2.0
-    rome: ^11.0.0
-    tailwindcss: ^3.2.4
-    typescript: ^4.9.4
-    vite: ^4.0.4
-    vitest: ^0.26.3
+    "@heroicons/react": ~2.0.11
+    "@playwright/test": ~1.28.1
+    "@types/react": ~18.0.17
+    "@types/react-dom": ~18.0.6
+    "@vitejs/plugin-react-swc": ~3.0.1
+    "@vitest/coverage-c8": ~0.23.4
+    autoprefixer: ~10.4.13
+    immer: ~9.0.17
+    postcss: ~8.4.21
+    react: ~18.2.0
+    react-dom: ~18.2.0
+    rome: ~11.0.0
+    tailwindcss: ~3.2.4
+    typescript: ~4.9.4
+    vite: ~4.0.4
+    vitest: ~0.26.3
   languageName: unknown
   linkType: soft
 
@@ -2375,7 +2386,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.4.20, postcss@npm:^8.4.21":
+"postcss@npm:^8.4.20, postcss@npm:~8.4.21":
   version: 8.4.21
   resolution: "postcss@npm:8.4.21"
   dependencies:
@@ -2417,7 +2428,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dom@npm:^18.2.0":
+"react-dom@npm:~18.2.0":
   version: 18.2.0
   resolution: "react-dom@npm:18.2.0"
   dependencies:
@@ -2429,7 +2440,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react@npm:^18.2.0":
+"react@npm:~18.2.0":
   version: 18.2.0
   resolution: "react@npm:18.2.0"
   dependencies:
@@ -2489,7 +2500,7 @@ __metadata:
 
 "resolve@patch:resolve@^1.1.7#~builtin<compat/resolve>, resolve@patch:resolve@^1.22.1#~builtin<compat/resolve>":
   version: 1.22.1
-  resolution: "resolve@patch:resolve@npm%3A1.22.1#~builtin<compat/resolve>::version=1.22.1&hash=07638b"
+  resolution: "resolve@patch:resolve@npm%3A1.22.1#~builtin<compat/resolve>::version=1.22.1&hash=c3c19d"
   dependencies:
     is-core-module: ^2.9.0
     path-parse: ^1.0.7
@@ -2553,7 +2564,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rome@npm:^11.0.0":
+"rome@npm:~11.0.0":
   version: 11.0.0
   resolution: "rome@npm:11.0.0"
   dependencies:
@@ -2795,7 +2806,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tailwindcss@npm:^3.2.4":
+"tailwindcss@npm:~3.2.4":
   version: 3.2.4
   resolution: "tailwindcss@npm:3.2.4"
   dependencies:
@@ -2900,7 +2911,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^4.9.4":
+"typescript@npm:~4.9.4":
   version: 4.9.4
   resolution: "typescript@npm:4.9.4"
   bin:
@@ -2910,13 +2921,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^4.9.4#~builtin<compat/typescript>":
+"typescript@patch:typescript@~4.9.4#~builtin<compat/typescript>":
   version: 4.9.4
-  resolution: "typescript@patch:typescript@npm%3A4.9.4#~builtin<compat/typescript>::version=4.9.4&hash=701156"
+  resolution: "typescript@patch:typescript@npm%3A4.9.4#~builtin<compat/typescript>::version=4.9.4&hash=ad5954"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 37f6e2c3c5e2aa5934b85b0fddbf32eeac8b1bacf3a5b51d01946936d03f5377fe86255d4e5a4ae628fd0cd553386355ad362c57f13b4635064400f3e8e05b9d
+  checksum: 1caaea6cb7f813e64345190fddc4e6c924d0b698ab81189b503763c4a18f7f5501c69362979d36e19c042d89d936443e768a78b0675690b35eb663d19e0eae71
   languageName: node
   linkType: hard
 
@@ -3025,7 +3036,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^3.0.0 || ^4.0.0, vite@npm:^4.0.4":
+"vite@npm:^3.0.0 || ^4.0.0, vite@npm:~4.0.4":
   version: 4.0.4
   resolution: "vite@npm:4.0.4"
   dependencies:
@@ -3101,7 +3112,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vitest@npm:^0.26.3":
+"vitest@npm:~0.26.3":
   version: 0.26.3
   resolution: "vitest@npm:0.26.3"
   dependencies:
