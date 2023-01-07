@@ -60,6 +60,7 @@ export function SubmitButton({
 	value: string;
 	children?: ReactNode;
 }) {
+	// todo make a version without value!
 	const [{ onChange }] = useFormField(name);
 	return (
 		<button

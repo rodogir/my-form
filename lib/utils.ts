@@ -27,11 +27,14 @@ if (import.meta.vitest) {
 	});
 }
 
-function pathToArray(path: string) {
+export function pathToArray(path: string) {
 	return path.split(".");
 }
 
-function getByPathArray<T extends object>(object: T, path: string[]): any {
+export function getByPathArray<T extends object>(
+	object: T,
+	path: string[],
+): any {
 	return path.reduce((res, prop) => (res as any)?.[prop], object);
 }
 
@@ -40,53 +43,36 @@ export function set<T extends Record<string, unknown> | unknown[]>(
 	path: Path<T>,
 	value: unknown,
 ): T {
-	return setByPathArray(object, pathToArray(path), value);
-}
+	const pathSegments = path.split(".");
+	const tail = pathSegments.pop();
 
-export function setByPathArray<T extends Record<string, unknown> | unknown[]>(
-	object: T,
-	pathArray: string[],
-	value: unknown,
-): T {
-	const head = pathArray.slice(0, -1);
-	const tail = pathArray.slice(-1)[0];
+	const objectToUpdate =
+		pathSegments.length > 0 ? getByPathArray(object, pathSegments) : object;
 
-	if (!tail) {
-		return object;
+	if (tail) {
+		objectToUpdate[tail] = value;
 	}
 
-	const objectToUpdate = getByPathArray(object, head);
-	const updated = Array.isArray(objectToUpdate)
-		? (() => {
-				const copy = [...objectToUpdate];
-				copy[Number.parseInt(tail, 10)] = value;
-				return copy;
-		  })()
-		: { ...objectToUpdate, [tail]: value };
-
-	if (head.length === 0) {
-		return updated;
-	}
-	return setByPathArray(object, head, updated);
+	return object;
 }
 
 if (import.meta.vitest) {
 	const { it, expect } = import.meta.vitest;
 	it("set", () => {
-		const object = { a: { b: { c: "TEST" } } };
-		expect(set(object, "a", "1")).toEqual({ a: "1" });
-		expect(set(object, "a.b", "1")).toEqual({ a: { b: "1" } });
-		expect(set(object, "a.b.c", "1")).toEqual({ a: { b: { c: "1" } } });
+		const makeObject = () => ({ a: { b: { c: "TEST" } } });
+		expect(set(makeObject(), "a", "1")).toEqual({ a: "1" });
+		expect(set(makeObject(), "a.b", "1")).toEqual({ a: { b: "1" } });
+		expect(set(makeObject(), "a.b.c", "1")).toEqual({ a: { b: { c: "1" } } });
 
-		const array = ["a", "b", "c"];
-		expect(set(array, "0", "A")).toEqual(["A", "b", "c"]);
-		expect(set(array, "1", "B")).toEqual(["a", "B", "c"]);
+		const makeArray = () => ["a", "b", "c"];
+		expect(set(makeArray(), "0", "A")).toEqual(["A", "b", "c"]);
+		expect(set(makeArray(), "1", "B")).toEqual(["a", "B", "c"]);
 
-		const mixed = { a: { b: [{ c: 1 }, { c: 2 }] } };
-		expect(set(mixed, "a.b.0", "A")).toEqual({
+		const makeMixed = () => ({ a: { b: [{ c: 1 }, { c: 2 }] } });
+		expect(set(makeMixed(), "a.b.0", "A")).toEqual({
 			a: { b: ["A", { c: 2 }] },
 		});
-		expect(set(mixed, "a.b.1.c", 10)).toEqual({
+		expect(set(makeMixed(), "a.b.1.c", 10)).toEqual({
 			a: { b: [{ c: 1 }, { c: 10 }] },
 		});
 	});
@@ -106,6 +92,7 @@ export type Path<T> = T extends ReadonlyArray<infer V>
 			[K in keyof T]-?: PathRecursion<K & string, T[K]>;
 	  }[keyof T];
 
+// todo: introduce branded types
 export type PathRecursion<K extends string, V> = V extends
 	| Primitive
 	| BrowserNativeObject

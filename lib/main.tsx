@@ -1,5 +1,5 @@
-import { produce } from "immer";
-import type { ChangeEvent, FormEvent, ReactNode } from "react";
+import produce from "immer";
+import type { ChangeEvent, FormEvent, MouseEvent, ReactNode } from "react";
 import {
 	createContext,
 	useContext,
@@ -7,16 +7,17 @@ import {
 	useRef,
 	useSyncExternalStore,
 } from "react";
-import type { FieldMeta, FormStateValue } from "./form-state";
+import { handleValueChange } from "./form-instance";
+import { FieldMeta, FormStateValue } from "./form-state";
 import { useEvent } from "./useEvent";
-import { get, set } from "./utils";
+import { get } from "./utils";
 
 export interface UseFormOptions {
 	defaultValues: FormValues;
 	effects?: Record<string, FormEffect>;
 }
 
-export function useForm({ defaultValues, effects }: UseFormOptions) {
+export function useForm({ defaultValues, effects = {} }: UseFormOptions) {
 	const subscribersRef = useRef(new Set<Subscriber>());
 	const stateRef = useRef<FormStateValue>({
 		defaultValues,
@@ -53,11 +54,13 @@ export function useForm({ defaultValues, effects }: UseFormOptions) {
 		[],
 	);
 
+	const getValues = () => store.getSnapshot().values;
+
 	return useMemo(
 		() => ({
 			store,
 			updateState,
-			getValues: () => store.getSnapshot().values,
+			getValues,
 			setValue: (
 				name: string,
 				value: any,
@@ -100,7 +103,6 @@ export function useForm({ defaultValues, effects }: UseFormOptions) {
 				};
 				publishState(nextState);
 			},
-			// defaultValues: initialValuesRef.current,
 			reset: (values?: FormValues) => {
 				const currentState = stateRef.current;
 				const newDefaultValues = values ?? currentState.defaultValues;
@@ -116,7 +118,7 @@ export function useForm({ defaultValues, effects }: UseFormOptions) {
 				});
 			},
 		}),
-		[getEffects, publishState, store, update],
+		[publishState, store, updateState],
 	);
 }
 
@@ -137,22 +139,19 @@ function generateRandId() {
 	return (Math.random() * 10 ** 10).toFixed(0);
 }
 
-type FormInstance = ReturnType<typeof useForm>;
+export type FormInstance = ReturnType<typeof useForm>;
 type FormValues = Record<string, any>;
 type FieldArrayState = Record<string, { fields: { key: string }[] }>;
 type Subscriber = () => void;
 type FormState = "valid" | "submitted" | "submitting" | "error";
-type FormEffect = (
-	value: string,
-	form: Pick<FormInstance, "getValues" | "setValue">,
-) => void;
+type FormEffect = (form: Pick<FormInstance, "getValues" | "setValue">) => void;
 
 const FormContext = createContext<FormInstance>({
 	getValues: () => ({}),
 	setValue: () => {},
 	setState: () => {},
 	reset: () => {},
-	update: () => {},
+	updateState: () => {},
 	store: {
 		getSnapshot: () => ({
 			defaultValues: {},
@@ -160,6 +159,7 @@ const FormContext = createContext<FormInstance>({
 			arrays: {},
 			fieldMeta: {},
 			formMeta: { state: "valid", submitCount: 0 },
+			getEffects: () => ({}),
 		}),
 		subscribe: () => () => {},
 	},
@@ -214,8 +214,10 @@ export function useFormField(name: string) {
 		{
 			name,
 			value,
-			// todo: add support for non event (maybe use a separate hook for cleaner code)
-			onChange: (event: ChangeEvent<HTMLInputElement>) => {
+			// TODO: add support for non event (maybe use a separate hook for cleaner code)
+			onChange: (
+				event: ChangeEvent<HTMLInputElement> | MouseEvent<HTMLButtonElement>,
+			) => {
 				setValue(name, event.currentTarget.value, { isTouched: true });
 			},
 		},
@@ -255,10 +257,10 @@ export function useCheckbox(name: string) {
 	};
 }
 
-export function useFormStateField(
-	field: keyof FormStateValue,
+export function useFormStateField<Field extends keyof FormStateValue>(
+	field: Field,
 	instance?: FormInstance,
-) {
+): FormStateValue[Field] {
 	const contextForm = useFormContext();
 	const { store } = instance ?? contextForm;
 
