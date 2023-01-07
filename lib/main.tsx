@@ -7,7 +7,7 @@ import {
 	useRef,
 	useSyncExternalStore,
 } from "react";
-import { FieldMeta, FormStateValue } from "./form-state";
+import { FieldMeta, FormMetaState, FormStateValue } from "./form-state";
 import { useEvent } from "./useEvent";
 import { get, set } from "./utils";
 
@@ -117,20 +117,18 @@ export function useForm({ defaultValues, effects = {} }: UseFormOptions) {
 				// 		setValue: (n: string, v: string) => set(current.values, n, v),
 				// 	});
 			},
-			setState: (state: FormState) => {
-				const currentState = stateRef.current;
-				const nextState: FormStateValue = {
-					...stateRef.current,
-					formMeta: {
-						state,
-						submitCount:
-							state === "submitted" &&
-							currentState.formMeta.state !== "submitted"
-								? currentState.formMeta.submitCount + 1
-								: currentState.formMeta.submitCount,
-					},
-				};
-				publishState(nextState);
+			setState: (metaState: FormMetaState) => {
+				updateState((state) =>
+					produce(state, (draft) => {
+						draft.formMeta.state = metaState;
+						if (
+							metaState === "submitted" &&
+							state.formMeta.state !== "submitted"
+						) {
+							draft.formMeta.submitCount += 1;
+						}
+					}),
+				);
 			},
 			reset: (values?: FormValues) => {
 				const currentState = stateRef.current;
@@ -172,7 +170,6 @@ export type FormInstance = ReturnType<typeof useForm>;
 type FormValues = Record<string, any>;
 type FieldArrayState = Record<string, { fields: { key: string }[] }>;
 type Subscriber = () => void;
-type FormState = "valid" | "submitted" | "submitting" | "error";
 type FormEffect = (form: Pick<FormInstance, "getValues" | "setValue">) => void;
 
 const FormContext = createContext<FormInstance>({
