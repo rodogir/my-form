@@ -26,6 +26,7 @@ export default defineConfig(() => ({
 	},
 	define: { "import.meta.vitest": "undefined" },
 	test: {
+		include: ["lib/**/*.{test}.{ts,tsx}"],
 		includeSource: ["lib/**/*.{ts,tsx}"],
 	},
 }));
