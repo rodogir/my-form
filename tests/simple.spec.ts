@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 test("simple", async ({ page }) => {
 	await page.goto("http://localhost:3700/");
@@ -9,7 +9,7 @@ test("simple", async ({ page }) => {
 	await page
 		.getByRole("region", { name: "Simple Example" })
 		.getByLabel("Given name")
-		.fill("Rodrigo");
+		.fill("Bruce");
 	await page
 		.getByRole("region", { name: "Simple Example" })
 		.getByLabel("Given name")
@@ -17,7 +17,7 @@ test("simple", async ({ page }) => {
 	await page
 		.getByRole("region", { name: "Simple Example" })
 		.getByLabel("Last name")
-		.fill("Benz");
+		.fill("Wayne");
 	await page
 		.getByRole("region", { name: "Simple Example" })
 		.getByLabel("Last name")
@@ -31,7 +31,7 @@ test("simple", async ({ page }) => {
 			.getByRole("region", { name: "Simple Example" })
 			.getByTestId("submitted-values"),
 	).toHaveAttribute(
-		"values",
-		`{"firstName":"Rodrigo","lastName":"Benz","submit":"success"}`,
+		"data-values",
+		`{"firstName":"Bruce","lastName":"Wayne","submit":"success"}`,
 	);
 });

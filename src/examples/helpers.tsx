@@ -19,7 +19,7 @@ export function FormStateMessage({ values }: { values: unknown }) {
 							Submitted values
 						</summary>
 						<pre
-							data-test-id="submitted-values"
+							data-testid="submitted-values"
 							data-values={JSON.stringify(values)}
 						>
 							{JSON.stringify(values, undefined, 2)}
