@@ -7,10 +7,9 @@ import {
 	useRef,
 	useSyncExternalStore,
 } from "react";
-import { handleValueChange } from "./form-instance";
 import { FieldMeta, FormStateValue } from "./form-state";
 import { useEvent } from "./useEvent";
-import { get } from "./utils";
+import { get, set } from "./utils";
 
 export interface UseFormOptions {
 	defaultValues: FormValues;
@@ -66,27 +65,57 @@ export function useForm({ defaultValues, effects = {} }: UseFormOptions) {
 				value: any,
 				options?: { isTouched: boolean },
 			) => {
-				const effcts = getEffects();
-				update((current) => {
-					set(current.values, name, value);
-					const currentMeta = current.fieldMeta[name] ?? {
+				// const effcts = getEffects();
+				updateState((state) => {
+					const currentMeta = state.fieldMeta[name] ?? {
 						isDirty: false,
 						isTouched: false,
 					};
-					const isDirty = value !== get(current.defaultValues, name);
+					const isDirty = value !== get(state.defaultValues, name);
 					const isTouched = options?.isTouched ?? currentMeta.isTouched;
-					if (
-						currentMeta.isDirty !== isDirty ||
-						currentMeta.isTouched !== isTouched
-					) {
-						// eslint-disable-next-line no-param-reassign
-						current.fieldMeta[name] = { isDirty, isTouched };
-					}
-					effcts?.[name]?.(value, {
-						getValues: () => store.getSnapshot().values,
-						setValue: (n: string, v: string) => set(current.values, n, v),
+
+					const next = produce(state, (draft) => {
+						set(draft.values, name, value);
+						if (
+							currentMeta.isDirty !== isDirty ||
+							currentMeta.isTouched !== isTouched
+						) {
+							draft.fieldMeta[name] = { isDirty, isTouched };
+						}
 					});
+
+					// effcts?.[name]?.(value, {
+					// 	getValues: () => store.getSnapshot().values,
+					// 	setValue: (n: string, v: string) => set(current.values, n, v),
+					// });
+					return next;
 				});
+				// updateState((state) =>
+				// 	handleValueChange(state, name, value, {
+				// 		isTouched: options?.isTouched ?? true,
+				// 	}),
+				// );
+
+				// if (options?.shouldRunEffects) {
+				// 	const effect = getEffects()?.[name];
+				// 	effect?.({
+				// 		getValues,
+				// 		setValue: (name: string, value: unknown) => {
+				// 			updateState((state) =>
+				// 				handleValueChange(state, name, value, {
+				// 					isTouched: false,
+				// 				}),
+				// 			);
+				// 		},
+				// 	});
+				// }
+
+				// const effects = getEffects();
+
+				// 	effects?.[name]?.(value, {
+				// 		getValues: () => store.getSnapshot().values,
+				// 		setValue: (n: string, v: string) => set(current.values, n, v),
+				// 	});
 			},
 			setState: (state: FormState) => {
 				const currentState = stateRef.current;
