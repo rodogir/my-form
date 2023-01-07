@@ -1,3 +1,7 @@
+export function generateRandId() {
+	return (Math.random() * 10 ** 10).toFixed(0);
+}
+
 export function get<T extends object>(object: T, path: Path<T>): any {
 	return getByPathArray(object, pathToArray(path));
 }

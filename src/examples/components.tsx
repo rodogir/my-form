@@ -17,8 +17,11 @@ interface TextInputFieldProps {
 export function TextInputField({ name, label, readOnly }: TextInputFieldProps) {
 	const [props, meta] = useFormField(name);
 	const id = useId();
-	const dirtyClassNames = meta.isDirty ? "border-orange-400" : "";
-	const touchedClassNames = meta.isTouched ? "border-sky-400" : "";
+	const dirtyClassNames = meta.isDirty ? "border-orange-400" : undefined;
+	const touchedClassNames = meta.isTouched ? "border-sky-400" : undefined;
+	const borderClassNames =
+		dirtyClassNames ?? touchedClassNames ?? "border-gray-200";
+	console.log(props.name, meta);
 
 	return (
 		<div>
@@ -30,9 +33,7 @@ export function TextInputField({ name, label, readOnly }: TextInputFieldProps) {
 			<input
 				id={id}
 				type="text"
-				className={`appearance-none block w-full h-11 px-3 py-2 text-gray-700 bg-white border-2 border-gray-200 rounded-md focus:border-teal-400 focus:ring-teal-300 focus:ring-opacity-40 focus:outline-none focus:ring ${
-					dirtyClassNames || touchedClassNames
-				}`}
+				className={`appearance-none block w-full h-11 px-3 py-2 text-gray-700 bg-white border-2 rounded-md focus:border-teal-400 focus:ring-teal-300 focus:ring-opacity-40 focus:outline-none focus:ring ${borderClassNames}`}
 				readOnly={readOnly}
 				{...props}
 			/>

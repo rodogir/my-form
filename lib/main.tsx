@@ -9,7 +9,7 @@ import {
 } from "react";
 import { FieldMeta, FormMetaState, FormStateValue } from "./form-state";
 import { useEvent } from "./useEvent";
-import { get, set } from "./utils";
+import { generateRandId, get, set } from "./utils";
 
 export interface UseFormOptions {
 	defaultValues: FormValues;
@@ -72,7 +72,7 @@ export function useForm({
 				updateState((state) => {
 					const currentMeta = state.fieldMeta[name] ?? {
 						isDirty: false,
-						isTouched: false,
+						isTouched: true,
 					};
 					const isDirty = value !== get(state.defaultValues, name);
 					const isTouched = options?.isTouched ?? currentMeta.isTouched;
@@ -124,23 +124,6 @@ export function useForm({
 	);
 }
 
-// todo: add support for nested fields
-function findFieldArrays(values: FormValues) {
-	return Object.entries(values).reduce<FieldArrayState>(
-		(acc, [name, value]) => {
-			if (Array.isArray(value)) {
-				acc[name] = { fields: value.map(() => ({ key: generateRandId() })) };
-			}
-			return acc;
-		},
-		{},
-	);
-}
-
-function generateRandId() {
-	return (Math.random() * 10 ** 10).toFixed(0);
-}
-
 export type FormInstance = ReturnType<typeof useForm>;
 type FormValues = Record<string, any>;
 type FieldArrayState = Record<string, { fields: { key: string }[] }>;
@@ -148,6 +131,70 @@ type Subscriber = () => void;
 type SynchronizedFields = (
 	form: Pick<FormInstance, "getValues" | "setValue">,
 ) => void;
+
+// todo: move to separate file
+export function findFieldArrays(values: FormValues) {
+	const entries: [key: string, value: FieldArrayState[string]][] = [];
+	findFieldArraysRecursively(values, "", entries);
+	return Object.fromEntries(entries);
+}
+
+function findFieldArraysRecursively(
+	values: FormValues,
+	prefix: string,
+	result: [key: string, value: FieldArrayState[string]][],
+) {
+	for (const name in values) {
+		const value = values[name];
+
+		if (Array.isArray(value)) {
+			const fieldArrayName = `${prefix}${name}`;
+			result.push([
+				fieldArrayName,
+				{
+					fields: value.map(() => ({ key: generateRandId() })),
+				},
+			]);
+			value.forEach((v, index) => {
+				if (v && typeof v === "object") {
+					findFieldArraysRecursively(v, `${fieldArrayName}.${index}.`, result);
+				}
+			});
+			continue;
+		}
+		if (value && typeof value === "object") {
+			findFieldArraysRecursively(value, `${name}.`, result);
+		}
+	}
+}
+
+if (import.meta.vitest) {
+	const { it, expect } = import.meta.vitest;
+	it("findFieldArrays", () => {
+		expect(findFieldArrays({ emails: [] })).toEqual({ emails: { fields: [] } });
+		expect(findFieldArrays({ emails: [], phones: [] })).toEqual({
+			emails: { fields: [] },
+			phones: { fields: [] },
+		});
+		expect(findFieldArrays({ emails: ["me@example.com"] })).toEqual({
+			emails: { fields: [{ key: expect.any(String) }] },
+		});
+		expect(
+			findFieldArrays({ contacts: [{ id: "1", name: "Bruce", emails: [] }] }),
+		).toEqual({
+			contacts: { fields: [{ key: expect.any(String) }] },
+			"contacts.0.emails": { fields: [] },
+		});
+		expect(
+			findFieldArrays({
+				profile: { contacts: [{ id: "1", name: "Bruce", emails: [] }] },
+			}),
+		).toEqual({
+			"profile.contacts": { fields: [{ key: expect.any(String) }] },
+			"profile.contacts.0.emails": { fields: [] },
+		});
+	});
+}
 
 const FormContext = createContext<FormInstance>({
 	getValues: () => ({}),
@@ -296,6 +343,7 @@ export function useFieldArray(name: string, instance?: FormInstance) {
 				return produce(current, (draft) => {
 					draft.values[name].push(value);
 					draft.arrays[name]?.fields.push({ key: generateRandId() });
+					// todo: find field arrays in value and add them to "arrays".
 				});
 			});
 		}),
@@ -304,6 +352,7 @@ export function useFieldArray(name: string, instance?: FormInstance) {
 				return produce(state, (draft) => {
 					draft.values[name].splice(index, 1);
 					draft.arrays[name]?.fields.splice(index, 1);
+					// todo: find field arrays in value and remove from "arrays".
 				});
 			});
 		}),

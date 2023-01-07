@@ -8,7 +8,7 @@
 - [x] submit state
 - [ ] form field state (touched, dirty, valid, error, ...)
   - [x] touched, dirty
-  - [ ] field array support
+  - [ ] valid, error
 - [x] form values effects
 - [x] rename values effects to `synchronized` like naming (syncFields, syncs, synchronizedFields)
 - ~async effects~ => useEffect instead
@@ -19,6 +19,7 @@
 - [x] field array support
 - [x] field array w/o object
 - [x] submit count
+- [ ] nested field arrays
 - [ ] useFormSubmitButton: headless props for submit buttons (disabled depending on form state, supports value)
 - [ ] useSelector: called on every form change but only returns if value is new
 
