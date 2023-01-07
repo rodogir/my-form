@@ -22,42 +22,42 @@ export function Effects() {
 			locked: false,
 		},
 		effects: {
-			firstName: (value, { setValue, getValues }) => {
-				const { lastName } = getValues();
-				setValue("fullName", `${value} ${lastName}`);
+			firstName: ({ setValue, getValues }) => {
+				const { firstName, lastName } = getValues();
+				setValue("fullName", `${firstName} ${lastName}`);
 			},
-			lastName: (value, { setValue, getValues }) => {
-				const { firstName } = getValues();
-				setValue("fullName", `${firstName} ${value}`);
+			lastName: ({ setValue, getValues }) => {
+				const { firstName, lastName } = getValues();
+				setValue("fullName", `${firstName} ${lastName}`);
 			},
-			quantityKg: (value, { setValue, getValues }) => {
-				const { factor, locked, quantityPc } = getValues();
-				if (!locked) {
-					const newFactor = parseFloat(value) / parseFloat(quantityPc);
-					if (!Number.isNaN(newFactor) && Number.isFinite(newFactor)) {
-						setValue("factor", newFactor.toString());
-					}
-					return;
-				}
-				const otherQuantity = parseFloat(value) / parseFloat(factor);
-				if (!Number.isNaN(otherQuantity) && Number.isFinite(otherQuantity)) {
-					setValue("quantityPc", otherQuantity.toString());
-				}
-			},
-			quantityPc: (value, { setValue, getValues }) => {
-				const { factor, locked, quantityKg } = getValues();
-				if (!locked) {
-					const newFactor = parseFloat(quantityKg) / parseFloat(value);
-					if (!Number.isNaN(newFactor) && Number.isFinite(newFactor)) {
-						setValue("factor", newFactor.toString());
-					}
-					return;
-				}
-				const otherQuantity = parseFloat(value) * parseFloat(factor);
-				if (!Number.isNaN(otherQuantity) && Number.isFinite(otherQuantity)) {
-					setValue("quantityKg", otherQuantity.toString());
-				}
-			},
+			// quantityKg: (value, { setValue, getValues }) => {
+			// 	const { factor, locked, quantityPc } = getValues();
+			// 	if (!locked) {
+			// 		const newFactor = parseFloat(value) / parseFloat(quantityPc);
+			// 		if (!Number.isNaN(newFactor) && Number.isFinite(newFactor)) {
+			// 			setValue("factor", newFactor.toString());
+			// 		}
+			// 		return;
+			// 	}
+			// 	const otherQuantity = parseFloat(value) / parseFloat(factor);
+			// 	if (!Number.isNaN(otherQuantity) && Number.isFinite(otherQuantity)) {
+			// 		setValue("quantityPc", otherQuantity.toString());
+			// 	}
+			// },
+			// quantityPc: (value, { setValue, getValues }) => {
+			// 	const { factor, locked, quantityKg } = getValues();
+			// 	if (!locked) {
+			// 		const newFactor = parseFloat(quantityKg) / parseFloat(value);
+			// 		if (!Number.isNaN(newFactor) && Number.isFinite(newFactor)) {
+			// 			setValue("factor", newFactor.toString());
+			// 		}
+			// 		return;
+			// 	}
+			// 	const otherQuantity = parseFloat(value) * parseFloat(factor);
+			// 	if (!Number.isNaN(otherQuantity) && Number.isFinite(otherQuantity)) {
+			// 		setValue("quantityKg", otherQuantity.toString());
+			// 	}
+			// },
 		},
 	});
 
@@ -73,8 +73,7 @@ export function Effects() {
 	};
 
 	return (
-		<Section title="Effects">
-			<P>Effects don&apos;t trigger effects on fields they change!</P>
+		<Section title="Synchronized Fields">
 			<Form
 				id="sample-1"
 				formInstance={form}

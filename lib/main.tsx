@@ -65,7 +65,7 @@ export function useForm({ defaultValues, effects = {} }: UseFormOptions) {
 				value: any,
 				options?: { isTouched: boolean },
 			) => {
-				// const effcts = getEffects();
+				const effcts = getEffects();
 				updateState((state) => {
 					const currentMeta = state.fieldMeta[name] ?? {
 						isDirty: false,
@@ -74,7 +74,7 @@ export function useForm({ defaultValues, effects = {} }: UseFormOptions) {
 					const isDirty = value !== get(state.defaultValues, name);
 					const isTouched = options?.isTouched ?? currentMeta.isTouched;
 
-					const next = produce(state, (draft) => {
+					return produce(state, (draft) => {
 						set(draft.values, name, value);
 						if (
 							currentMeta.isDirty !== isDirty ||
@@ -82,40 +82,12 @@ export function useForm({ defaultValues, effects = {} }: UseFormOptions) {
 						) {
 							draft.fieldMeta[name] = { isDirty, isTouched };
 						}
+						effcts?.[name]?.({
+							getValues: () => draft.values,
+							setValue: (n: string, v: string) => set(draft.values, n, v),
+						});
 					});
-
-					// effcts?.[name]?.(value, {
-					// 	getValues: () => store.getSnapshot().values,
-					// 	setValue: (n: string, v: string) => set(current.values, n, v),
-					// });
-					return next;
 				});
-				// updateState((state) =>
-				// 	handleValueChange(state, name, value, {
-				// 		isTouched: options?.isTouched ?? true,
-				// 	}),
-				// );
-
-				// if (options?.shouldRunEffects) {
-				// 	const effect = getEffects()?.[name];
-				// 	effect?.({
-				// 		getValues,
-				// 		setValue: (name: string, value: unknown) => {
-				// 			updateState((state) =>
-				// 				handleValueChange(state, name, value, {
-				// 					isTouched: false,
-				// 				}),
-				// 			);
-				// 		},
-				// 	});
-				// }
-
-				// const effects = getEffects();
-
-				// 	effects?.[name]?.(value, {
-				// 		getValues: () => store.getSnapshot().values,
-				// 		setValue: (n: string, v: string) => set(current.values, n, v),
-				// 	});
 			},
 			setState: (metaState: FormMetaState) => {
 				updateState((state) =>
