@@ -2,15 +2,14 @@ import { Form, useForm } from "../../lib/main";
 import {
 	Buttons,
 	Checkbox,
-	P,
 	ResetButton,
 	Section,
 	SubmitButton,
 	TextInputField,
 } from "./components";
-import { FormStateMessage, waitFor } from "./helpers";
+import { FormStateMessage, useSubmitHelper } from "./helpers";
 
-export function Effects() {
+export function SynchronizedFields() {
 	const form = useForm({
 		defaultValues: {
 			firstName: "",
@@ -21,7 +20,7 @@ export function Effects() {
 			factor: "",
 			locked: false,
 		},
-		effects: {
+		synchronizedFields: {
 			firstName: ({ setValue, getValues }) => {
 				const { firstName, lastName } = getValues();
 				setValue("fullName", `${firstName} ${lastName}`);
@@ -61,23 +60,15 @@ export function Effects() {
 		},
 	});
 
-	const simulateSubmit = async (values: any) => {
-		await waitFor(850);
-		// eslint-disable-next-line no-console
-		console.log("submitted", values);
-		if (values.submit === "error") {
-			form.setState("error");
-		} else {
-			form.setState("submitted");
-		}
-	};
+	const { handleSubmit, submittedValues, resetSubmittedValues } =
+		useSubmitHelper(form);
 
 	return (
 		<Section title="Synchronized Fields">
 			<Form
 				id="sample-1"
 				formInstance={form}
-				onSubmit={simulateSubmit}
+				onSubmit={handleSubmit}
 				className="flex flex-col gap-3"
 			>
 				<div className="grid grid-cols-3 gap-2">
@@ -95,11 +86,12 @@ export function Effects() {
 					<ResetButton
 						onClick={() => {
 							form.reset();
+							resetSubmittedValues();
 						}}
 					/>
 					<SubmitButton name="submit" value="success" />
 				</Buttons>
-				<FormStateMessage />
+				<FormStateMessage values={submittedValues} />
 			</Form>
 		</Section>
 	);

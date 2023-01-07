@@ -13,10 +13,13 @@ import { get, set } from "./utils";
 
 export interface UseFormOptions {
 	defaultValues: FormValues;
-	effects?: Record<string, FormEffect>;
+	synchronizedFields?: Record<string, SynchronizedFields>;
 }
 
-export function useForm({ defaultValues, effects = {} }: UseFormOptions) {
+export function useForm({
+	defaultValues,
+	synchronizedFields = {},
+}: UseFormOptions) {
 	const subscribersRef = useRef(new Set<Subscriber>());
 	const stateRef = useRef<FormStateValue>({
 		defaultValues,
@@ -26,7 +29,7 @@ export function useForm({ defaultValues, effects = {} }: UseFormOptions) {
 		formMeta: { state: "valid", submitCount: 0 },
 	});
 
-	const getEffects = useEvent(() => effects);
+	const getSynchronizedFields = useEvent(() => synchronizedFields);
 
 	const publishState = useEvent((nextState: FormStateValue) => {
 		stateRef.current = nextState;
@@ -65,7 +68,7 @@ export function useForm({ defaultValues, effects = {} }: UseFormOptions) {
 				value: any,
 				options?: { isTouched: boolean },
 			) => {
-				const effcts = getEffects();
+				const syncFields = getSynchronizedFields();
 				updateState((state) => {
 					const currentMeta = state.fieldMeta[name] ?? {
 						isDirty: false,
@@ -82,7 +85,7 @@ export function useForm({ defaultValues, effects = {} }: UseFormOptions) {
 						) {
 							draft.fieldMeta[name] = { isDirty, isTouched };
 						}
-						effcts?.[name]?.({
+						syncFields?.[name]?.({
 							getValues: () => draft.values,
 							setValue: (n: string, v: string) => set(draft.values, n, v),
 						});
@@ -142,7 +145,9 @@ export type FormInstance = ReturnType<typeof useForm>;
 type FormValues = Record<string, any>;
 type FieldArrayState = Record<string, { fields: { key: string }[] }>;
 type Subscriber = () => void;
-type FormEffect = (form: Pick<FormInstance, "getValues" | "setValue">) => void;
+type SynchronizedFields = (
+	form: Pick<FormInstance, "getValues" | "setValue">,
+) => void;
 
 const FormContext = createContext<FormInstance>({
 	getValues: () => ({}),
@@ -157,7 +162,6 @@ const FormContext = createContext<FormInstance>({
 			arrays: {},
 			fieldMeta: {},
 			formMeta: { state: "valid", submitCount: 0 },
-			getEffects: () => ({}),
 		}),
 		subscribe: () => () => {},
 	},

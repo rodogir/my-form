@@ -1,7 +1,7 @@
 import { Hr } from "./examples/components";
-import { Effects } from "./examples/Effects";
 import { FieldArray } from "./examples/FieldArray";
 import { Simple } from "./examples/Simple";
+import { SynchronizedFields } from "./examples/SynchronizedFields";
 
 export function App() {
 	return (
@@ -10,7 +10,7 @@ export function App() {
 			<Hr />
 			<FieldArray />
 			<Hr />
-			<Effects />
+			<SynchronizedFields />
 			<Hr />
 		</div>
 	);
