@@ -19,6 +19,7 @@
 - [x] field array support
 - [x] field array w/o object
 - [x] submit count
+- [ ] useFormSubmitButton: headless props for submit buttons (disabled depending on form state, supports value)
 - [ ] useSelector: called on every form change but only returns if value is new
 
 **nice to haves**
