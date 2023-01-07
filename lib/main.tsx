@@ -26,17 +26,19 @@ export function useForm({ defaultValues, effects }: UseFormOptions) {
 		formMeta: { state: "valid", submitCount: 0 },
 	});
 
+	const getEffects = useEvent(() => effects);
+
 	const publishState = useEvent((nextState: FormStateValue) => {
 		stateRef.current = nextState;
 		subscribersRef.current.forEach((fn) => fn());
 	});
 
-	const getEffects = useEvent(() => effects);
-
-	const update = useEvent((updater: (current: FormStateValue) => void) => {
-		const nextState = produce(stateRef.current, updater);
-		publishState(nextState);
-	});
+	const updateState = useEvent(
+		(updater: (current: FormStateValue) => FormStateValue) => {
+			const nextState = updater(stateRef.current);
+			publishState(nextState);
+		},
+	);
 
 	const store = useMemo(
 		() => ({
@@ -54,7 +56,7 @@ export function useForm({ defaultValues, effects }: UseFormOptions) {
 	return useMemo(
 		() => ({
 			store,
-			update,
+			updateState,
 			getValues: () => store.getSnapshot().values,
 			setValue: (
 				name: string,
@@ -272,7 +274,7 @@ export function useFormMeta(instance?: FormInstance) {
 
 export function useFieldArray(name: string, instance?: FormInstance) {
 	const contextForm = useFormContext();
-	const { store, update } = instance ?? contextForm;
+	const { store, updateState } = instance ?? contextForm;
 
 	const arrays = useSyncExternalStore(
 		store.subscribe,
@@ -286,15 +288,19 @@ export function useFieldArray(name: string, instance?: FormInstance) {
 				name: `${name}.${idx}`,
 			})) ?? [],
 		append: useEvent((value) => {
-			update((current) => {
-				current.values[name].push(value);
-				current.arrays[name]?.fields.push({ key: generateRandId() });
+			updateState((current) => {
+				return produce(current, (draft) => {
+					draft.values[name].push(value);
+					draft.arrays[name]?.fields.push({ key: generateRandId() });
+				});
 			});
 		}),
 		remove: useEvent((index: number) => {
-			update((current) => {
-				current.values[name].splice(index, 1);
-				current.arrays[name]?.fields.splice(index, 1);
+			updateState((state) => {
+				return produce(state, (draft) => {
+					draft.values[name].splice(index, 1);
+					draft.arrays[name]?.fields.splice(index, 1);
+				});
 			});
 		}),
 	};
