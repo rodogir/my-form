@@ -1,6 +1,29 @@
-import { ReactNode } from "react";
-import { FormMetaState } from "../../lib/form-state";
-import { useFormMeta } from "../../lib/main";
+import { ReactNode, useState } from "react";
+import { FormMetaState, FormValues } from "../../lib/form-state";
+import { FormInstance, useFormMeta } from "../../lib/main";
+
+export function useSubmitHelper(form: FormInstance) {
+	const [submittedValues, setSubmittedValues] = useState<
+		undefined | FormValues
+	>();
+
+	const handleSubmit = async (values: FormValues) => {
+		// eslint-disable-next-line no-console
+		console.log("submitted", values);
+		setSubmittedValues(values);
+		if (values.submit === "error") {
+			form.setState("error");
+		} else {
+			form.setState("submitted");
+		}
+	};
+
+	return {
+		handleSubmit,
+		submittedValues,
+		resetSubmittedValues: () => setSubmittedValues(undefined),
+	};
+}
 
 export function waitFor(ms: number) {
 	return new Promise((resolve) => {

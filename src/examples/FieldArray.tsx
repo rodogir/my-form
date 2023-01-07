@@ -8,7 +8,7 @@ import {
 	SubmitButton,
 	TextInputField,
 } from "./components";
-import { FormStateMessage, waitFor } from "./helpers";
+import { FormStateMessage, useSubmitHelper } from "./helpers";
 
 export function FieldArray() {
 	const form = useForm({
@@ -18,16 +18,8 @@ export function FieldArray() {
 		},
 	});
 
-	const simulateSubmit = async (values: any) => {
-		await waitFor(850);
-		// eslint-disable-next-line no-console
-		console.log("submitted", values);
-		if (values.submit === "error") {
-			form.setState("error");
-		} else {
-			form.setState("submitted");
-		}
-	};
+	const { handleSubmit, submittedValues, resetSubmittedValues } =
+		useSubmitHelper(form);
 
 	const emails = useFieldArray("emails", form);
 	const users = useFieldArray("users", form);
@@ -37,7 +29,7 @@ export function FieldArray() {
 			<Form
 				id="field-array"
 				formInstance={form}
-				onSubmit={simulateSubmit}
+				onSubmit={handleSubmit}
 				className="flex flex-col gap-3"
 			>
 				<div className="grid grid-cols-3 gap-2">
@@ -56,8 +48,14 @@ export function FieldArray() {
 				<div className="grid grid-cols-2 gap-2">
 					{users.fields.map(({ key, name }, index) => (
 						<div key={key} className="flex gap-1 items-end">
-							<TextInputField name={`${name}.name`} label="User name" />
-							<TextInputField name={`${name}.password`} label="Password" />
+							<TextInputField
+								name={`${name}.name`}
+								label={`User name ${index + 1}`}
+							/>
+							<TextInputField
+								name={`${name}.password`}
+								label={`Password ${index + 1}`}
+							/>
 							<RemoveItemButton onClick={() => users.remove(index)} />
 						</div>
 					))}
@@ -73,11 +71,12 @@ export function FieldArray() {
 					<ResetButton
 						onClick={() => {
 							form.reset();
+							resetSubmittedValues();
 						}}
 					/>
 					<SubmitButton name="submit" value="success" />
 				</Buttons>
-				<FormStateMessage />
+				<FormStateMessage values={submittedValues} />
 			</Form>
 		</Section>
 	);
