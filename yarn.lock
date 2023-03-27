@@ -2451,6 +2451,7 @@ __metadata:
     react: ~18.2.0
     react-dom: ~18.2.0
     rome: ~11.0.0
+    superstruct: ~1.0.3
     tailwindcss: ~3.2.7
     typescript: ~5.0.2
     vite: ~4.2.1
@@ -3249,6 +3250,13 @@ __metadata:
   dependencies:
     acorn: ^8.8.1
   checksum: ada9b60f322ce3e3fd167b65a186ab77a8c76b8f9074dcdbad4c1a810b46f21c9dca30d4d807e98af580cbe99bfbccd6d8176f69183a454ae2868d8ddd6d4f88
+  languageName: node
+  linkType: hard
+
+"superstruct@npm:~1.0.3":
+  version: 1.0.3
+  resolution: "superstruct@npm:1.0.3"
+  checksum: 761790bb111e6e21ddd608299c252f3be35df543263a7ebbc004e840d01fcf8046794c274bcb351bdf3eae4600f79d317d085cdbb19ca05803a4361840cc9bb1
   languageName: node
   linkType: hard
 
