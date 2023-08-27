@@ -1,26 +1,26 @@
 {
-  "linter": {
-    "enabled": true,
-    "ignore": ["dist"],
-    "rules": {
-      "recommended": true,
-      "suspicious": {
-        "noExplicitAny": "warn"
-      }
-    }
-  },
-  "formatter": {
-    "enabled": true,
-    "ignore": ["dist"],
-    "indentStyle": "tab",
-    "indentSize": 2,
-    "lineWidth": 80
-  },
-  "javascript": {
-    "formatter": {
-      "quoteProperties": "asNeeded",
-      "quoteStyle": "double",
-      "trailingComma": "all"
-    }
-  }
+	"linter": {
+		"enabled": true,
+		"ignore": ["dist"],
+		"rules": {
+			"recommended": true,
+			"suspicious": {
+				"noExplicitAny": "warn"
+			}
+		}
+	},
+	"formatter": {
+		"enabled": true,
+		"ignore": ["dist"],
+		"indentStyle": "tab",
+		"indentSize": 2,
+		"lineWidth": 80
+	},
+	"javascript": {
+		"formatter": {
+			"quoteProperties": "asNeeded",
+			"quoteStyle": "double",
+			"trailingComma": "all"
+		}
+	}
 }
