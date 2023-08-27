@@ -8,7 +8,7 @@ export function set<T extends Record<string, unknown> | unknown[]>(
 	return setByPathArray(object, pathToArray(path), value);
 }
 
-export function setByPathArray<T extends Record<string, unknown> | unknown[]>(
+function setByPathArray<T extends Record<string, unknown> | unknown[]>(
 	object: T,
 	pathArray: string[],
 	value: unknown,

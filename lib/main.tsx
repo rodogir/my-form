@@ -6,18 +6,19 @@ import {
 	useRef,
 	useSyncExternalStore,
 } from "react";
-import { flattenRecordToMap } from "./flattenRecordToMap";
+import { flattenValues } from "./flattenValues";
 import {
 	FieldMeta,
 	FieldValue,
 	FormMetaState,
 	FormStateValue,
+	FormValuesObject,
 } from "./form-state";
 import { useEvent } from "./useEvent";
 import { generateRandId } from "./utils";
 
 export interface UseFormOptions {
-	defaultValues: FormValues;
+	defaultValues: FormValuesObject;
 	synchronizedFields?: Record<string, SynchronizedFields>;
 }
 
@@ -27,7 +28,7 @@ export function useForm({
 }: UseFormOptions) {
 	const subscribersRef = useRef(new Set<Subscriber>());
 
-	const values = flattenRecordToMap(defaultValues);
+	const values = flattenValues(defaultValues);
 	const stateRef = useRef<FormStateValue>({
 		defaultValues,
 		values,
@@ -109,10 +110,10 @@ export function useForm({
 					return state;
 				});
 			},
-			reset: (values?: FormValues) => {
+			reset: (values?: FormValuesObject) => {
 				const currentState = stateRef.current;
 				const newDefaultValues = values ?? currentState.defaultValues;
-				const flatValues = flattenRecordToMap(newDefaultValues);
+				const flatValues = flattenValues(newDefaultValues);
 				publishState({
 					defaultValues: newDefaultValues,
 					values: flatValues,
@@ -131,21 +132,20 @@ export function useForm({
 }
 
 export type FormInstance = ReturnType<typeof useForm>;
-type FormValues = Record<string, FieldValue>;
 type FieldArrayState = Record<string, { fields: { key: string }[] }>;
 type Subscriber = () => void;
 type SynchronizedFields = (
 	form: Pick<FormInstance, "getValues" | "setValue">,
 ) => void;
 
-export function findFieldArrays(values: FormValues) {
+export function findFieldArrays(values: FormValuesObject) {
 	const entries: [key: string, value: FieldArrayState[string]][] = [];
 	findFieldArraysRecursively(values, "", entries);
-	return Object.fromEntries(entries);
+	return new Map(entries);
 }
 
 function findFieldArraysRecursively(
-	values: FormValues,
+	values: FormValuesObject,
 	prefix: string,
 	result: [key: string, value: FieldArrayState[string]][],
 ) {
@@ -168,7 +168,8 @@ function findFieldArraysRecursively(
 			continue;
 		}
 		if (value && typeof value === "object") {
-			findFieldArraysRecursively(value, `${name}.`, result);
+			// todo: avoid typecast
+			findFieldArraysRecursively(value as FormValuesObject, `${name}.`, result);
 		}
 	}
 }
@@ -212,7 +213,7 @@ const FormContext = createContext<FormInstance>({
 			defaultValues: {},
 			values: new Map(),
 			flatDefaultValues: new Map(),
-			arrays: {},
+			arrays: new Map(),
 			fieldMeta: {},
 			formMeta: { state: "valid", submitCount: 0 },
 		}),
@@ -337,35 +338,51 @@ export function useFieldArray(name: string, instance?: FormInstance) {
 	const contextForm = useFormContext();
 	const { store, updateState } = instance ?? contextForm;
 
-	const arrays = useSyncExternalStore(
-		store.subscribe,
-		() => store.getSnapshot().arrays[name],
+	const arrays = useSyncExternalStore(store.subscribe, () =>
+		store.getSnapshot().arrays.get(name),
 	);
 
 	return {
 		fields:
-			arrays?.fields.map(({ key }, idx) => ({
-				key,
-				name: `${name}.${idx}`,
-			})) ?? [],
+			arrays?.fields.map(({ key }, idx) => ({ key, name: `${name}.${idx}` })) ??
+			[],
 		append: useEvent((value) => {
-			updateState((current) => {
-				// todo: bring back this feature
-				// return produce(current, (draft) => {
-				// 	draft.values[name].push(value);
-				// 	draft.arrays[name]?.fields.push({ key: generateRandId() });
-				// 	// todo: find field arrays in value and add them to "arrays".
-				// });
+			updateState((state) => {
+				const fieldArray = state.arrays.get(name);
+				if (!fieldArray) {
+					return state;
+				}
+				const nextFields = [...fieldArray.fields, { key: generateRandId() }];
+				const nextIndex = fieldArray.fields.length ?? 0;
+				state.arrays.set(name, { ...fieldArray, fields: nextFields });
+
+				const flatValue = flattenValues(value, `${name}.${nextIndex}`);
+				for (const [key, value] of flatValue) {
+					state.values.set(key, value);
+				}
+				// todo: find field arrays in value and add them to "arrays".
+				return state;
 			});
 		}),
 		remove: useEvent((index: number) => {
 			updateState((state) => {
-				// todo: bring back this feature
-				// return produce(state, (draft) => {
-				// 	draft.values[name].splice(index, 1);
-				// 	draft.arrays[name]?.fields.splice(index, 1);
-				// 	// todo: find field arrays in value and remove from "arrays".
-				// });
+				const fieldArray = state.arrays.get(name);
+				if (!fieldArray) {
+					return state;
+				}
+				for (const key of state.values.keys()) {
+					if (key.startsWith(`${name}.${index}.`)) {
+						state.values.delete(key);
+					}
+				}
+
+				state.arrays.set(name, {
+					...fieldArray,
+					fields: fieldArray.fields.filter((_, idx) => idx !== index),
+				});
+
+				// todo: find field arrays in value and remove from "arrays".
+				return state;
 			});
 		}),
 	};

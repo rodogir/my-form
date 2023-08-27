@@ -121,3 +121,14 @@ export type TupleKeys<T extends ReadonlyArray<unknown>> = Exclude<
 	keyof T,
 	keyof unknown[]
 >;
+
+export function deleteKeysByPrefix<K extends string, V>(
+	map: Map<K, V>,
+	prefix: string,
+): void {
+	for (const key of map.keys()) {
+		if (key.startsWith(prefix)) {
+			map.delete(key);
+		}
+	}
+}

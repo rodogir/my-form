@@ -1,7 +1,7 @@
-export type FieldValue = unknown;
+export type FieldValue = string | number | boolean;
 export type FormValues = Map<string, FieldValue>;
 export type FormValuesObject = Record<string, unknown>;
-export type FieldArrayState = Record<string, { fields: { key: string }[] }>;
+export type FieldArrayState = Map<string, { fields: { key: string }[] }>;
 export type FieldMeta = {
 	isDirty: boolean;
 	isTouched: boolean;

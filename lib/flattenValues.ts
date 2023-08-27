@@ -1,10 +1,19 @@
-import { FieldValue } from "./form-state";
+import { FieldValue, FormValuesObject } from "./form-state";
 
-export function flattenRecordToMap(
-	record: Record<string, unknown>,
+export function flattenValues(
+	record: FormValuesObject | FieldValue,
 	parentKey = "",
 ): Map<string, FieldValue> {
 	const resultMap = new Map<string, FieldValue>();
+
+	if (
+		typeof record === "string" ||
+		typeof record === "number" ||
+		typeof record === "boolean"
+	) {
+		resultMap.set(parentKey, record);
+		return resultMap;
+	}
 
 	for (const key in record) {
 		const newKey = parentKey ? `${parentKey}.${key}` : key;
@@ -14,7 +23,7 @@ export function flattenRecordToMap(
 			value.forEach((item, index) => {
 				const arrayKey = `${newKey}.${index}`;
 				if (typeof item === "object" && !Array.isArray(item)) {
-					const innerMap = flattenRecordToMap(item, arrayKey);
+					const innerMap = flattenValues(item, arrayKey);
 					for (const [innerKey, value] of innerMap.entries()) {
 						resultMap.set(innerKey, value);
 					}
@@ -23,15 +32,13 @@ export function flattenRecordToMap(
 				}
 			});
 		} else if (value && typeof value === "object") {
-			const innerMap = flattenRecordToMap(
-				value as Record<string, unknown>,
-				newKey,
-			);
+			const innerMap = flattenValues(value as Record<string, unknown>, newKey);
 			for (const [innerKey, value] of innerMap.entries()) {
 				resultMap.set(innerKey, value);
 			}
 		} else {
-			resultMap.set(newKey, value);
+			// todo: avoid casting
+			resultMap.set(newKey, value as FieldValue);
 		}
 	}
 
@@ -49,7 +56,7 @@ if (import.meta.vitest) {
 				address: { street: "123 Main St", city: "Anytown" },
 			};
 
-			const flattenedMap = flattenRecordToMap(record);
+			const flattenedMap = flattenValues(record);
 
 			expect(flattenedMap.get("name.givenName")).toBe("John");
 			expect(flattenedMap.get("name.lastName")).toBe("Doe");
@@ -61,16 +68,22 @@ if (import.meta.vitest) {
 		it("handles flat records", () => {
 			const record = { name: "John Doe", age: 30 };
 
-			const flattenedMap = flattenRecordToMap(record);
+			const flattenedMap = flattenValues(record);
 
 			expect(flattenedMap.get("name")).toBe("John Doe");
 			expect(flattenedMap.get("age")).toBe(30);
 		});
 
+		it("handles single field value", () => {
+			const flattenedMap = flattenValues("John Doe", "name");
+
+			expect(flattenedMap.get("name")).toBe("John Doe");
+		});
+
 		it("returns an empty map for an empty record", () => {
 			const record = {};
 
-			const flattenedMap = flattenRecordToMap(record);
+			const flattenedMap = flattenValues(record);
 
 			expect(flattenedMap.size).toBe(0);
 		});
@@ -83,7 +96,7 @@ if (import.meta.vitest) {
 				],
 			};
 
-			const result = flattenRecordToMap(input);
+			const result = flattenValues(input);
 
 			expect(result.get("users.0.name.first")).toEqual("John");
 			expect(result.get("users.0.name.last")).toEqual("Doe");
