@@ -1,5 +1,10 @@
 # form
 
+## General ideas
+
+- isolated rendering: only update what changes
+- aimed at more complex form, no native HTML form validation support.
+
 ## Features
 
 **must haves**
