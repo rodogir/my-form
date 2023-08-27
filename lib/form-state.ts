@@ -1,7 +1,13 @@
-type FormValues = Record<string, any>;
-type FieldArrayState = Record<string, { fields: { key: string }[] }>;
+import { get, set } from "./utils";
 
-export type FieldMeta = { isDirty: boolean; isTouched: boolean };
+export type FormValues = Record<string, any>;
+export type FieldArrayState = Record<string, { fields: { key: string }[] }>;
+export type FieldMeta = {
+	isDirty: boolean;
+	isTouched: boolean;
+	hasError: boolean;
+	message?: string;
+};
 
 export type FormMetaState =
 	| "valid"

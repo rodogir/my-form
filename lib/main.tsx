@@ -83,7 +83,7 @@ export function useForm({
 							currentMeta.isDirty !== isDirty ||
 							currentMeta.isTouched !== isTouched
 						) {
-							draft.fieldMeta[name] = { isDirty, isTouched };
+							draft.fieldMeta[name] = { isDirty, isTouched, hasError: false };
 						}
 						syncFields?.[name]?.({
 							getValues: () => draft.values,
@@ -132,7 +132,6 @@ type SynchronizedFields = (
 	form: Pick<FormInstance, "getValues" | "setValue">,
 ) => void;
 
-// todo: move to separate file
 export function findFieldArrays(values: FormValues) {
 	const entries: [key: string, value: FieldArrayState[string]][] = [];
 	findFieldArraysRecursively(values, "", entries);
@@ -281,7 +280,11 @@ function useFieldValue(name: string) {
 	);
 }
 
-const defaultFieldMeta: FieldMeta = { isDirty: false, isTouched: false };
+const defaultFieldMeta: FieldMeta = {
+	isDirty: false,
+	isTouched: false,
+	hasError: false,
+};
 
 export function useFieldMeta(name: string) {
 	const { store } = useFormContext();
