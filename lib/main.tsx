@@ -1,4 +1,3 @@
-import produce from "immer";
 import type { ChangeEvent, FormEvent, MouseEvent, ReactNode } from "react";
 import {
 	createContext,
@@ -7,9 +6,15 @@ import {
 	useRef,
 	useSyncExternalStore,
 } from "react";
-import { FieldMeta, FormMetaState, FormStateValue } from "./form-state";
+import { flattenRecordToMap } from "./flattenRecordToMap";
+import {
+	FieldMeta,
+	FieldValue,
+	FormMetaState,
+	FormStateValue,
+} from "./form-state";
 import { useEvent } from "./useEvent";
-import { generateRandId, get, set } from "./utils";
+import { generateRandId } from "./utils";
 
 export interface UseFormOptions {
 	defaultValues: FormValues;
@@ -21,9 +26,12 @@ export function useForm({
 	synchronizedFields = {},
 }: UseFormOptions) {
 	const subscribersRef = useRef(new Set<Subscriber>());
+
+	const values = flattenRecordToMap(defaultValues);
 	const stateRef = useRef<FormStateValue>({
 		defaultValues,
-		values: defaultValues,
+		values,
+		flatDefaultValues: values,
 		arrays: findFieldArrays(defaultValues),
 		fieldMeta: {},
 		formMeta: { state: "valid", submitCount: 0 },
@@ -65,7 +73,7 @@ export function useForm({
 			getValues,
 			setValue: (
 				name: string,
-				value: any,
+				value: FieldValue,
 				options?: { isTouched: boolean },
 			) => {
 				const syncFields = getSynchronizedFields();
@@ -74,43 +82,41 @@ export function useForm({
 						isDirty: false,
 						isTouched: true,
 					};
-					const isDirty = value !== get(state.defaultValues, name);
+					const isDirty = value !== state.flatDefaultValues.get(name);
 					const isTouched = options?.isTouched ?? currentMeta.isTouched;
-
-					return produce(state, (draft) => {
-						set(draft.values, name, value);
-						if (
-							currentMeta.isDirty !== isDirty ||
-							currentMeta.isTouched !== isTouched
-						) {
-							draft.fieldMeta[name] = { isDirty, isTouched, hasError: false };
-						}
-						syncFields?.[name]?.({
-							getValues: () => draft.values,
-							setValue: (n: string, v: string) => set(draft.values, n, v),
-						});
+					state.values.set(name, value);
+					if (
+						currentMeta.isDirty !== isDirty ||
+						currentMeta.isTouched !== isTouched
+					) {
+						state.fieldMeta[name] = { isDirty, isTouched, hasError: false };
+					}
+					syncFields?.[name]?.({
+						getValues: () => state.values,
+						setValue: (n: string, v: FieldValue) => state.values.set(n, v),
 					});
+					return state;
 				});
 			},
 			setState: (metaState: FormMetaState) => {
-				updateState((state) =>
-					produce(state, (draft) => {
-						draft.formMeta.state = metaState;
-						if (
-							metaState === "submitted" &&
-							state.formMeta.state !== "submitted"
-						) {
-							draft.formMeta.submitCount += 1;
-						}
-					}),
-				);
+				updateState((state) => {
+					if (
+						metaState === "submitted" &&
+						state.formMeta.state !== "submitted"
+					) {
+						state.formMeta.submitCount += 1;
+					}
+					return state;
+				});
 			},
 			reset: (values?: FormValues) => {
 				const currentState = stateRef.current;
 				const newDefaultValues = values ?? currentState.defaultValues;
+				const flatValues = flattenRecordToMap(newDefaultValues);
 				publishState({
 					defaultValues: newDefaultValues,
-					values: newDefaultValues,
+					values: flatValues,
+					flatDefaultValues: flatValues,
 					formMeta: {
 						state: "valid",
 						submitCount: currentState.formMeta.submitCount,
@@ -125,7 +131,7 @@ export function useForm({
 }
 
 export type FormInstance = ReturnType<typeof useForm>;
-type FormValues = Record<string, any>;
+type FormValues = Record<string, FieldValue>;
 type FieldArrayState = Record<string, { fields: { key: string }[] }>;
 type Subscriber = () => void;
 type SynchronizedFields = (
@@ -196,7 +202,7 @@ if (import.meta.vitest) {
 }
 
 const FormContext = createContext<FormInstance>({
-	getValues: () => ({}),
+	getValues: () => new Map(),
 	setValue: () => {},
 	setState: () => {},
 	reset: () => {},
@@ -204,7 +210,8 @@ const FormContext = createContext<FormInstance>({
 	store: {
 		getSnapshot: () => ({
 			defaultValues: {},
-			values: {},
+			values: new Map(),
+			flatDefaultValues: new Map(),
 			arrays: {},
 			fieldMeta: {},
 			formMeta: { state: "valid", submitCount: 0 },
@@ -276,7 +283,7 @@ export function useFormField(name: string) {
 function useFieldValue(name: string) {
 	const { store } = useFormContext();
 	return useSyncExternalStore(store.subscribe, () =>
-		get(store.getSnapshot().values, name),
+		store.getSnapshot().values.get(name),
 	);
 }
 
@@ -343,20 +350,22 @@ export function useFieldArray(name: string, instance?: FormInstance) {
 			})) ?? [],
 		append: useEvent((value) => {
 			updateState((current) => {
-				return produce(current, (draft) => {
-					draft.values[name].push(value);
-					draft.arrays[name]?.fields.push({ key: generateRandId() });
-					// todo: find field arrays in value and add them to "arrays".
-				});
+				// todo: bring back this feature
+				// return produce(current, (draft) => {
+				// 	draft.values[name].push(value);
+				// 	draft.arrays[name]?.fields.push({ key: generateRandId() });
+				// 	// todo: find field arrays in value and add them to "arrays".
+				// });
 			});
 		}),
 		remove: useEvent((index: number) => {
 			updateState((state) => {
-				return produce(state, (draft) => {
-					draft.values[name].splice(index, 1);
-					draft.arrays[name]?.fields.splice(index, 1);
-					// todo: find field arrays in value and remove from "arrays".
-				});
+				// todo: bring back this feature
+				// return produce(state, (draft) => {
+				// 	draft.values[name].splice(index, 1);
+				// 	draft.arrays[name]?.fields.splice(index, 1);
+				// 	// todo: find field arrays in value and remove from "arrays".
+				// });
 			});
 		}),
 	};

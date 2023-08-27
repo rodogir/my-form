@@ -1,4 +1,6 @@
-export type FormValues = Record<string, any>;
+export type FieldValue = unknown;
+export type FormValues = Map<string, FieldValue>;
+export type FormValuesObject = Record<string, unknown>;
 export type FieldArrayState = Record<string, { fields: { key: string }[] }>;
 export type FieldMeta = {
 	isDirty: boolean;
@@ -16,7 +18,8 @@ export type FormMetaState =
 
 export interface FormStateValue {
 	values: FormValues;
-	defaultValues: FormValues;
+	flatDefaultValues: FormValues;
+	defaultValues: FormValuesObject;
 	arrays: FieldArrayState;
 	formMeta: { state: FormMetaState; submitCount: number };
 	fieldMeta: Record<string, FieldMeta | undefined>;

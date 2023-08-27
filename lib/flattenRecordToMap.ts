@@ -1,8 +1,10 @@
-function flattenRecordToMap(
+import { FieldValue } from "./form-state";
+
+export function flattenRecordToMap(
 	record: Record<string, unknown>,
 	parentKey = "",
-): Map<string, unknown> {
-	const resultMap = new Map<string, unknown>();
+): Map<string, FieldValue> {
+	const resultMap = new Map<string, FieldValue>();
 
 	for (const key in record) {
 		const newKey = parentKey ? `${parentKey}.${key}` : key;
