@@ -1,4 +1,4 @@
-import produce from "immer";
+import { produce } from "immer";
 import type { ChangeEvent, FormEvent, MouseEvent, ReactNode } from "react";
 import {
 	createContext,
