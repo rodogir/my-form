@@ -51,12 +51,25 @@ interface TextInputField2Props<TValues extends FormValues>
 export function TextInputField2<TValues extends FormValues>({
 	form,
 	name,
+	validator,
 	label,
 	readOnly,
 }: TextInputField2Props<TValues>) {
-	const { value, handleChange } = useFormField2({ form, name });
+	const { value, handleChange, meta } = useFormField2({
+		form,
+		name,
+		validator,
+	});
 	const id = useId();
-	const borderClassNames = "";
+	const dirtyClassNames = meta.isDirty ? "border-orange-400" : undefined;
+	const touchedClassNames = meta.isTouched ? "border-sky-400" : undefined;
+	const invalidClassNames = meta.isInvalid ? "border-rose-600" : undefined;
+	const borderClassNames =
+		invalidClassNames ??
+		dirtyClassNames ??
+		touchedClassNames ??
+		"border-gray-200";
+
 	return (
 		<div>
 			{label && (
@@ -67,7 +80,7 @@ export function TextInputField2<TValues extends FormValues>({
 			<input
 				id={id}
 				type="text"
-				className={`appearance-none block w-full h-11 px-3 py-2 text-gray-700 bg-white border-2 rounded-md focus:border-teal-400 focus:ring-teal-300 focus:ring-opacity-40 focus:outline-none focus:ring ${borderClassNames}`}
+				className={`appearance-none block w-full h-11 px-3 py-2 text-gray-700 bg-white border-2 rounded-md focus:ring-teal-300 focus:ring-opacity-40 focus:outline focus:ring ${borderClassNames}`}
 				readOnly={readOnly}
 				value={value}
 				onChange={(e) => handleChange(e.target.value)}

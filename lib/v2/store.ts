@@ -1,5 +1,7 @@
+import { dequal } from "dequal";
+import { ZodSchema } from "zod";
 import { StoreApi, createStore } from "zustand";
-import { generateRandId } from "../utils";
+import { generateRandId, get } from "../utils";
 import { FieldName, FieldValue, TypedFieldName } from "./base-types";
 import { setIn } from "./immutable-utils";
 
@@ -8,9 +10,15 @@ export type FieldArrayState = Record<string, { fields: { key: string }[] }>;
 export type FieldMeta = {
 	isDirty: boolean;
 	isTouched: boolean;
-	hasError: boolean;
-	message?: string;
+	isInvalid: boolean;
+	errorMessage?: string;
+	validator?: FieldValidator;
 };
+
+export interface FieldValidator {
+	// todo: add support for async validators, onBlur
+	onChange?: ZodSchema;
+}
 
 export type FormMetaState =
 	| "valid"
@@ -74,7 +82,45 @@ export function setValue<
 	value: FieldValue<TValues, TName>,
 ) {
 	store.setState((oldState) => {
-		return setIn(oldState, `values.${name}` as any, value);
+		const { validator } = oldState.fieldMeta[name] ?? {};
+
+		// todo: this should be a seperate function
+		const { isInvalid, errorMessage } = (() => {
+			if (!validator || !validator.onChange) {
+				return { isInvalid: false, errorMessage: undefined };
+			}
+			const validationResult = validator.onChange?.safeParse(value);
+
+			if (validationResult.success) {
+				return { isInvalid: false, errorMessage: undefined };
+			}
+
+			return {
+				isInvalid: true,
+				errorMessage: validationResult?.error.issues[0]?.message,
+			};
+		})();
+
+		const isTouched = true;
+
+		const isDirty = dequal(get(oldState.defaultValues, name), value);
+
+		const values = setIn(oldState.values, name, value);
+
+		return {
+			...oldState,
+			values,
+			fieldMeta: {
+				...oldState.fieldMeta,
+				[name]: {
+					...oldState.fieldMeta[name],
+					isDirty,
+					isTouched,
+					errorMessage,
+					isInvalid,
+				},
+			},
+		};
 	});
 }
 
