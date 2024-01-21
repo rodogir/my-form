@@ -13,7 +13,6 @@
 		"enabled": true,
 		"ignore": ["dist"],
 		"indentStyle": "tab",
-		"indentSize": 2,
 		"lineWidth": 80
 	},
 	"javascript": {
