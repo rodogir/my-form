@@ -15,8 +15,8 @@ import { waitFor } from "./helpers";
 export function Simple() {
 	const form = useForm2({
 		defaultValues: {
-			firstName: "Peter",
-			lastName: "Parker",
+			firstName: "",
+			lastName: "",
 			age: 18,
 		},
 		onSubmit: async ({ values }) => {

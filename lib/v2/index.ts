@@ -12,6 +12,7 @@ import {
 	endSubmit,
 	setValue,
 	startSubmit,
+	validateAll,
 } from "./store";
 
 export type { FormValues };
@@ -29,8 +30,14 @@ export function useForm2<TValues extends FormValues>({
 	return {
 		store,
 		handleSubmit: async () => {
+			store.setState((oldState) => validateAll(oldState));
+
+			if (store.getState().formMeta.isInvalid) {
+				return;
+			}
+
 			startSubmit(store);
-			await onSubmit?.({ values: store.getState().values });
+			await onSubmit?.({ values: currentState.values });
 			endSubmit(store);
 		},
 		reset: (values?: TValues) => {

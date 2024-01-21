@@ -12,7 +12,7 @@ export type FieldMeta = {
 	isTouched: boolean;
 	isInvalid: boolean;
 	errorMessage?: string;
-	validator?: FieldValidator;
+	validator?: FieldValidator | undefined;
 };
 
 export interface FieldValidator {
@@ -33,7 +33,7 @@ export interface FormState<TValues extends FormValues> {
 	arrays: {
 		[key in FieldName<TValues>]?: { fields: { key: string }[] };
 	};
-	formMeta: { state: FormMetaState; submitCount: number };
+	formMeta: { isInvalid: boolean; state: FormMetaState; submitCount: number };
 	fieldMeta: {
 		[key in FieldName<TValues>]?: FieldMeta;
 	};
@@ -55,7 +55,7 @@ export function createFormStore<TValues extends FormValues>({
 		defaultValues: defaultValues,
 		values: defaultValues,
 		arrays: findFieldArrays(defaultValues),
-		formMeta: { state: "valid", submitCount: 0 },
+		formMeta: { isInvalid: false, state: "valid", submitCount: 0 },
 		fieldMeta: {},
 	}));
 }
@@ -82,42 +82,20 @@ export function setValue<
 	value: FieldValue<TValues, TName>,
 ) {
 	store.setState((oldState) => {
-		const { validator } = oldState.fieldMeta[name] ?? {};
-
-		// todo: this should be a seperate function
-		const { isInvalid, errorMessage } = (() => {
-			if (!validator || !validator.onChange) {
-				return { isInvalid: false, errorMessage: undefined };
-			}
-			const validationResult = validator.onChange?.safeParse(value);
-
-			if (validationResult.success) {
-				return { isInvalid: false, errorMessage: undefined };
-			}
-
-			return {
-				isInvalid: true,
-				errorMessage: validationResult?.error.issues[0]?.message,
-			};
-		})();
+		const valueState = change(oldState, name, value);
+		const validatedState = validate(valueState, name);
 
 		const isTouched = true;
-
-		const isDirty = dequal(get(oldState.defaultValues, name), value);
-
-		const values = setIn(oldState.values, name, value);
+		const isDirty = dequal(get(validatedState, name), value);
 
 		return {
-			...oldState,
-			values,
+			...validatedState,
 			fieldMeta: {
-				...oldState.fieldMeta,
+				...validatedState.fieldMeta,
 				[name]: {
-					...oldState.fieldMeta[name],
+					...validatedState.fieldMeta[name],
 					isDirty,
 					isTouched,
-					errorMessage,
-					isInvalid,
 				},
 			},
 		};
@@ -141,6 +119,66 @@ export function endSubmit<TValues extends FormValues>(
 			submitCount: oldState.formMeta.submitCount + 1,
 		}),
 	);
+}
+
+export function validate(
+	state: FormState<FormValues>,
+	name: FieldName<FormValues>,
+) {
+	const { validator } = state.fieldMeta[name] ?? {};
+	const value = get(state.values, name);
+
+	const { isInvalid, errorMessage } = (() => {
+		if (!validator || !validator.onChange) {
+			return { isInvalid: false, errorMessage: undefined };
+		}
+		const validationResult = validator.onChange?.safeParse(value);
+
+		if (validationResult.success) {
+			return { isInvalid: false, errorMessage: undefined };
+		}
+
+		return {
+			isInvalid: true,
+			errorMessage: validationResult?.error.issues[0]?.message,
+		};
+	})();
+
+	return {
+		...state,
+		formMeta: {
+			...state.formMeta,
+			isInvalid: state.formMeta.isInvalid || isInvalid,
+		},
+		fieldMeta: {
+			...state.fieldMeta,
+			[name]: {
+				isDirty: false,
+				isTouched: false,
+				...state.fieldMeta[name],
+				isInvalid,
+				errorMessage,
+			},
+		},
+	} satisfies FormState<FormValues>;
+}
+
+export function validateAll(state: FormState<FormValues>) {
+	const validatedState = Object.keys(state.fieldMeta).reduce(
+		(state, name) => validate(state, name),
+		state,
+	);
+	return validatedState;
+}
+
+export function change<
+	TValues extends FormValues,
+	TName extends FieldName<TValues>,
+>(state: FormState<TValues>, name: TName, value: FieldValue<TValues, TName>) {
+	return {
+		...state,
+		values: setIn(state.values, name, value),
+	};
 }
 
 export function findFieldArrays(values: FormValues) {
