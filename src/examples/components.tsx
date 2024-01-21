@@ -93,17 +93,14 @@ export function SubmitButton({
 	children,
 }: {
 	name: string;
-	value: string;
+	value?: string;
 	children?: ReactNode;
 }) {
-	// todo make a version without value!
-	const [{ onChange }] = useFormField(name);
 	return (
 		<button
 			type="submit"
 			name={name}
 			value={value}
-			onClick={onChange}
 			className="px-3 py-2 font-medium tracking-wide capitalize transition-colors duration-300 transform bg-white border-2 border-teal-500 rounded hover:bg-teal-100 focus:outline-none focus:ring focus:ring-teal-300 focus:ring-opacity-80 text-teal-700"
 		>
 			{children ?? <PaperAirplaneIcon className="h-5 w-5" />}

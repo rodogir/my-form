@@ -2,8 +2,14 @@ import { useRef } from "react";
 import { useStore } from "zustand";
 import { FormValues } from "../form-state";
 import { get } from "../utils";
-import { TypedFieldName } from "./base-types";
-import { createFormStore, endSubmit, startSubmit } from "./store";
+import { FieldName, FieldValue, TypedFieldName } from "./base-types";
+import {
+	createFormStore,
+	createInitialFormState,
+	endSubmit,
+	setValue,
+	startSubmit,
+} from "./store";
 
 export type { FormValues };
 
@@ -24,6 +30,21 @@ export function useForm2<TValues extends FormValues>({
 			await onSubmit?.({ values: store.getState().values });
 			endSubmit(store);
 		},
+		reset: (values?: TValues) => {
+			const currentState = store.getState();
+			store.setState(
+				createInitialFormState({
+					defaultValues: values ?? currentState.defaultValues,
+					submitCount: currentState.formMeta.submitCount,
+				}),
+			);
+		},
+		setValue: <TName extends FieldName<TValues>>(
+			name: TName,
+			value: FieldValue<TValues, TName>,
+		) => {
+			setValue(store, name, value);
+		},
 	};
 }
 
@@ -40,11 +61,14 @@ export function useFormField2<TValues extends FormValues, TFieldValue>({
 	form,
 	name,
 }: FormFieldProps<TValues, TFieldValue>) {
-	const value = useStore(form.store, (state) => get(state.values, name));
+	const value = useStore(
+		form.store,
+		(state) => get(state.values, name) as TFieldValue,
+	);
 	return {
 		value,
 		handleChange: (value: TFieldValue) => {
-			form.store.getState().setValue(name, value);
+			setValue(form.store, name, value);
 		},
 	};
 }

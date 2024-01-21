@@ -1,4 +1,3 @@
-import { FireIcon } from "@heroicons/react/24/outline";
 import { FormMetaState } from "@lib/form-state";
 import { ReactNode } from "react";
 import { useStore } from "zustand";
@@ -25,9 +24,6 @@ export function Simple() {
 		},
 	});
 
-	// const { handleSubmit, submittedValues, resetSubmittedValues } =
-	// 	useSubmitHelper(form);
-
 	return (
 		<Section title="Simple Example">
 			<Form id="sample-1" form={form} className="flex flex-col gap-3">
@@ -36,14 +32,10 @@ export function Simple() {
 					<TextInputField2 form={form} name="lastName" label="Given name" />
 				</div>
 				<Buttons>
-					<SubmitButton name="submit" value="success" />
-					<SubmitButton name="submit" value="error">
-						<FireIcon className="h-5 w-5 text-rose-700" />
-					</SubmitButton>
+					<SubmitButton name="submit" />
 					<ResetButton
 						onClick={() => {
 							form.reset();
-							resetSubmittedValues();
 						}}
 					/>
 				</Buttons>

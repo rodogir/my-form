@@ -20,11 +20,15 @@ export type FormMetaState =
 	| "error";
 
 export interface FormState<TValues extends FormValues> {
-	deafaultValues: TValues;
+	defaultValues: TValues;
 	values: TValues;
-	arrays: FieldArrayState;
+	arrays: {
+		[key in FieldName<TValues>]?: { fields: { key: string }[] };
+	};
 	formMeta: { state: FormMetaState; submitCount: number };
-	fieldMeta: Record<string, FieldMeta | undefined>;
+	fieldMeta: {
+		[key in FieldName<TValues>]?: FieldMeta;
+	};
 }
 
 export interface FormFieldProps<TValues extends FormValues, TFieldValue> {
@@ -40,12 +44,25 @@ export function createFormStore<TValues extends FormValues>({
 	defaultValues,
 }: FormStoreOptions<TValues>) {
 	return createStore<FormState<TValues>>()(() => ({
-		deafaultValues: defaultValues,
+		defaultValues: defaultValues,
 		values: defaultValues,
 		arrays: findFieldArrays(defaultValues),
 		formMeta: { state: "valid", submitCount: 0 },
 		fieldMeta: {},
 	}));
+}
+
+export function createInitialFormState<TValues extends FormValues>({
+	defaultValues,
+	submitCount = 0,
+}: { defaultValues: TValues; submitCount?: number }): FormState<TValues> {
+	return {
+		defaultValues: defaultValues,
+		values: defaultValues,
+		arrays: findFieldArrays(defaultValues),
+		formMeta: { state: "valid", submitCount },
+		fieldMeta: {},
+	};
 }
 
 export function setValue<
