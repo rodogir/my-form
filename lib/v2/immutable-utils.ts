@@ -1,6 +1,7 @@
-import { getByPathArray, Path, pathToArray } from "./utils";
+import { FormValues } from "../form-state";
+import { Path, getByPathArray, pathToArray } from "../utils";
 
-export function set<T extends Record<string, unknown> | unknown[]>(
+export function setIn<T extends FormValues | unknown[]>(
 	object: T,
 	path: Path<T>,
 	value: unknown,
@@ -8,7 +9,7 @@ export function set<T extends Record<string, unknown> | unknown[]>(
 	return setByPathArray(object, pathToArray(path), value);
 }
 
-export function setByPathArray<T extends Record<string, unknown> | unknown[]>(
+export function setByPathArray<T extends FormValues | unknown[]>(
 	object: T,
 	pathArray: string[],
 	value: unknown,
@@ -39,19 +40,19 @@ if (import.meta.vitest) {
 	const { it, expect } = import.meta.vitest;
 	it("set", () => {
 		const object = { a: { b: { c: "TEST" } } };
-		expect(set(object, "a", "1")).toEqual({ a: "1" });
-		expect(set(object, "a.b", "1")).toEqual({ a: { b: "1" } });
-		expect(set(object, "a.b.c", "1")).toEqual({ a: { b: { c: "1" } } });
+		expect(setIn(object, "a", "1")).toEqual({ a: "1" });
+		expect(setIn(object, "a.b", "1")).toEqual({ a: { b: "1" } });
+		expect(setIn(object, "a.b.c", "1")).toEqual({ a: { b: { c: "1" } } });
 
 		const array = ["a", "b", "c"];
-		expect(set(array, "0", "A")).toEqual(["A", "b", "c"]);
-		expect(set(array, "1", "B")).toEqual(["a", "B", "c"]);
+		expect(setIn(array, "0", "A")).toEqual(["A", "b", "c"]);
+		expect(setIn(array, "1", "B")).toEqual(["a", "B", "c"]);
 
 		const mixed = { a: { b: [{ c: 1 }, { c: 2 }] } };
-		expect(set(mixed, "a.b.0", "A")).toEqual({
+		expect(setIn(mixed, "a.b.0", "A")).toEqual({
 			a: { b: ["A", { c: 2 }] },
 		});
-		expect(set(mixed, "a.b.1.c", 10)).toEqual({
+		expect(setIn(mixed, "a.b.1.c", 10)).toEqual({
 			a: { b: [{ c: 1 }, { c: 10 }] },
 		});
 	});
