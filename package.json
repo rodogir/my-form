@@ -1,39 +1,40 @@
 {
-  "name": "my-form",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "test:unit": "vitest",
-    "test:e2e": "playwright test",
-    "coverage": "vitest run --coverage",
-    "format": " biome format . --write",
-    "lint": " biome lint ."
-  },
-  "dependencies": {
-    "@heroicons/react": "~2.1.1",
-    "immer": "~10.0.3",
-    "react": "~18.2.0",
-    "react-dom": "~18.2.0"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "1.5.2",
-    "@playwright/test": "~1.41.1",
-    "@types/react": "~18.2.48",
-    "@types/react-dom": "~18.2.18",
-    "@vitejs/plugin-react-swc": "~3.5.0",
-    "@vitest/coverage-v8": "~1.2.1",
-    "@vitest/ui": "~1.2.1",
-    "autoprefixer": "~10.4.17",
-    "postcss": "~8.4.33",
-    "superstruct": "~1.0.3",
-    "tailwindcss": "~3.4.1",
-    "typescript": "~5.3.3",
-    "vite": "~5.0.12",
-    "vitest": "~1.2.1"
-  },
-  "packageManager": "yarn@4.0.2"
+	"name": "my-form",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"preview": "vite preview",
+		"test:unit": "vitest",
+		"test:e2e": "playwright test",
+		"coverage": "vitest run --coverage",
+		"format": " biome format . --write",
+		"lint": " biome lint ."
+	},
+	"dependencies": {
+		"@heroicons/react": "~2.1.1",
+		"immer": "~10.0.3",
+		"react": "~18.2.0",
+		"react-dom": "~18.2.0",
+		"zustand": "v5.0.0-alpha.2"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "1.5.2",
+		"@playwright/test": "~1.41.1",
+		"@types/react": "~18.2.48",
+		"@types/react-dom": "~18.2.18",
+		"@vitejs/plugin-react-swc": "~3.5.0",
+		"@vitest/coverage-v8": "~1.2.1",
+		"@vitest/ui": "~1.2.1",
+		"autoprefixer": "~10.4.17",
+		"postcss": "~8.4.33",
+		"superstruct": "~1.0.3",
+		"tailwindcss": "~3.4.1",
+		"typescript": "~5.3.3",
+		"vite": "~5.0.12",
+		"vitest": "~1.2.1"
+	},
+	"packageManager": "yarn@4.0.2"
 }

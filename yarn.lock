@@ -2244,6 +2244,7 @@ __metadata:
     typescript: "npm:~5.3.3"
     vite: "npm:~5.0.12"
     vitest: "npm:~1.2.1"
+    zustand: "npm:v5.0.0-alpha.2"
   languageName: unknown
   linkType: soft
 
@@ -3437,5 +3438,26 @@ __metadata:
   version: 1.0.0
   resolution: "yocto-queue@npm:1.0.0"
   checksum: 2cac84540f65c64ccc1683c267edce396b26b1e931aa429660aefac8fbe0188167b7aee815a3c22fa59a28a58d898d1a2b1825048f834d8d629f4c2a5d443801
+  languageName: node
+  linkType: hard
+
+"zustand@npm:v5.0.0-alpha.2":
+  version: 5.0.0-alpha.2
+  resolution: "zustand@npm:5.0.0-alpha.2"
+  peerDependencies:
+    "@types/react": ">=18.0"
+    immer: ">=9.0.6"
+    react: ">=18.0"
+    use-sync-external-store: ">=1.2.0"
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+    immer:
+      optional: true
+    react:
+      optional: true
+    use-sync-external-store:
+      optional: true
+  checksum: 0f05aa27c2b77be131292163d9f00b23ac5924045f4e3c9ba16790a5fa092ce1e2dc5c33c19767518a3d4ebc6011d978272955e5f02055e96959a9b0c208b2c7
   languageName: node
   linkType: hard
