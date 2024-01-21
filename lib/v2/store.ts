@@ -1,5 +1,6 @@
-import { createStore } from "zustand";
+import { StoreApi, createStore } from "zustand";
 import { generateRandId } from "../utils";
+import { FieldName, FieldValue, TypedFieldName } from "./base-types";
 import { setIn } from "./immutable-utils";
 
 export type FormValues = Record<string, any>;
@@ -24,10 +25,11 @@ export interface FormState<TValues extends FormValues> {
 	arrays: FieldArrayState;
 	formMeta: { state: FormMetaState; submitCount: number };
 	fieldMeta: Record<string, FieldMeta | undefined>;
-	setValue: <TName extends FieldName<TValues>>(
-		name: TName,
-		value: FieldValue<TValues, TName>,
-	) => void;
+}
+
+export interface FormFieldProps<TValues extends FormValues, TFieldValue> {
+	form: any;
+	name: TypedFieldName<TValues, TFieldValue>;
 }
 
 export interface FormStoreOptions<TValues> {
@@ -37,44 +39,46 @@ export interface FormStoreOptions<TValues> {
 export function createFormStore<TValues extends FormValues>({
 	defaultValues,
 }: FormStoreOptions<TValues>) {
-	return createStore<FormState<TValues>>()((set) => ({
+	return createStore<FormState<TValues>>()(() => ({
 		deafaultValues: defaultValues,
 		values: defaultValues,
 		arrays: findFieldArrays(defaultValues),
 		formMeta: { state: "valid", submitCount: 0 },
 		fieldMeta: {},
-		setValue: (name, value) => {
-			set((oldState) => {
-				return setIn(oldState, `values.${name}` as any, value);
-			});
-		},
 	}));
 }
 
-export type FieldName<T, TDepth extends any[] = []> = TDepth["length"] extends 5
-	? never
-	: T extends object
-	  ? {
-				[K in keyof T]: T[K] extends ReadonlyArray<infer U>
-					?
-							| `${K & string}`
-							| (U extends object
-									? `${K & string}.${number}.${FieldName<U, [...TDepth, any]> &
-											string}`
-									: never)
-					: T[K] extends object
-					  ?
-								| `${K & string}`
-								| `${K & string}.${FieldName<T[K], [...TDepth, any]> & string}`
-					  : `${K & string}`;
-		  }[keyof T]
-	  : never;
+export function setValue<
+	TValues extends FormValues,
+	TName extends FieldName<TValues>,
+>(
+	store: StoreApi<FormState<TValues>>,
+	name: TName,
+	value: FieldValue<TValues, TName>,
+) {
+	store.setState((oldState) => {
+		return setIn(oldState, `values.${name}` as any, value);
+	});
+}
 
-export type FieldValue<T, TProp> = T extends Record<string | number, any>
-	? TProp extends `${infer TBranch}.${infer TDeepProp}`
-		? FieldValue<T[TBranch], TDeepProp>
-		: T[TProp & string]
-	: never;
+export function startSubmit<TValues extends FormValues>(
+	store: StoreApi<FormState<TValues>>,
+) {
+	store.setState((oldState) =>
+		setIn(oldState, "formMeta.state", "submitting" satisfies FormMetaState),
+	);
+}
+
+export function endSubmit<TValues extends FormValues>(
+	store: StoreApi<FormState<TValues>>,
+) {
+	store.setState((oldState) =>
+		setIn(oldState, "formMeta", {
+			state: "submitted",
+			submitCount: oldState.formMeta.submitCount + 1,
+		}),
+	);
+}
 
 export function findFieldArrays(values: FormValues) {
 	const entries: [key: string, value: FieldArrayState[string]][] = [];

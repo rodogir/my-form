@@ -1,36 +1,39 @@
 import { FireIcon } from "@heroicons/react/24/outline";
-import { Form, useForm } from "../../lib/main";
+import { FormMetaState } from "@lib/form-state";
+import { ReactNode } from "react";
+import { useStore } from "zustand";
+import { FormApi, useForm2 } from "../../lib/v2";
 import {
 	Buttons,
 	ResetButton,
 	Section,
 	SubmitButton,
-	TextInputField,
+	TextInputField2,
 } from "./components";
-import { FormStateMessage, useSubmitHelper } from "./helpers";
+import { waitFor } from "./helpers";
 
 export function Simple() {
-	const form = useForm({
+	const form = useForm2({
 		defaultValues: {
 			firstName: "Peter",
 			lastName: "Parker",
+			age: 18,
+		},
+		onSubmit: async ({ values }) => {
+			await waitFor(500);
+			console.log("submitted", values);
 		},
 	});
 
-	const { handleSubmit, submittedValues, resetSubmittedValues } =
-		useSubmitHelper(form);
+	// const { handleSubmit, submittedValues, resetSubmittedValues } =
+	// 	useSubmitHelper(form);
 
 	return (
 		<Section title="Simple Example">
-			<Form
-				id="sample-1"
-				formInstance={form}
-				onSubmit={handleSubmit}
-				className="flex flex-col gap-3"
-			>
+			<Form id="sample-1" form={form} className="flex flex-col gap-3">
 				<div className="grid grid-cols-3 gap-2">
-					<TextInputField name="firstName" label="Given name" />
-					<TextInputField name="lastName" label="Last name" />
+					<TextInputField2 form={form} name="firstName" label="Given name" />
+					<TextInputField2 form={form} name="lastName" label="Given name" />
 				</div>
 				<Buttons>
 					<SubmitButton name="submit" value="success" />
@@ -44,8 +47,50 @@ export function Simple() {
 						}}
 					/>
 				</Buttons>
-				<FormStateMessage values={submittedValues} />
+				<FormInfo form={form} />
 			</Form>
 		</Section>
 	);
 }
+
+type FormProps = JSX.IntrinsicElements["form"] & {
+	form: FormApi;
+};
+
+function Form({ form, ...props }: FormProps) {
+	return (
+		<form
+			onSubmit={(e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				form.handleSubmit();
+				return undefined;
+			}}
+			{...props}
+		/>
+	);
+}
+
+function FormInfo({ form }: { form: FormApi }) {
+	const { state, submitCount } = useStore(
+		form.store,
+		(state) => state.formMeta,
+	);
+
+	return (
+		<aside>
+			<h3 data-testid="form-state" data-form-state={state}>
+				{messages[state]}
+			</h3>
+			<p>Submit count: {submitCount}</p>
+		</aside>
+	);
+}
+
+const messages: Record<FormMetaState, ReactNode> = {
+	valid: "Form is valid",
+	validating: "Validating form ...",
+	error: "❌ Oh no, submitting the form failed 😔",
+	submitted: "✅ Form successfully submitted! 🎉",
+	submitting: "Submitting ...",
+};

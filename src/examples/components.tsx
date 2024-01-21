@@ -7,6 +7,7 @@ import {
 import type { ReactNode } from "react";
 import { useId } from "react";
 import { useCheckbox, useFormField } from "../../lib/main";
+import { FormFieldProps, FormValues, useFormField2 } from "../../lib/v2";
 
 interface TextInputFieldProps {
 	name: string;
@@ -36,6 +37,40 @@ export function TextInputField({ name, label, readOnly }: TextInputFieldProps) {
 				className={`appearance-none block w-full h-11 px-3 py-2 text-gray-700 bg-white border-2 rounded-md focus:border-teal-400 focus:ring-teal-300 focus:ring-opacity-40 focus:outline-none focus:ring ${borderClassNames}`}
 				readOnly={readOnly}
 				{...props}
+			/>
+		</div>
+	);
+}
+
+interface TextInputField2Props<TValues extends FormValues>
+	extends FormFieldProps<TValues, string> {
+	label?: string;
+	readOnly?: boolean;
+}
+
+export function TextInputField2<TValues extends FormValues>({
+	form,
+	name,
+	label,
+	readOnly,
+}: TextInputField2Props<TValues>) {
+	const { value, handleChange } = useFormField2({ form, name });
+	const id = useId();
+	const borderClassNames = "";
+	return (
+		<div>
+			{label && (
+				<label htmlFor={id} className="text-gray-700 mb-2">
+					{label}
+				</label>
+			)}
+			<input
+				id={id}
+				type="text"
+				className={`appearance-none block w-full h-11 px-3 py-2 text-gray-700 bg-white border-2 rounded-md focus:border-teal-400 focus:ring-teal-300 focus:ring-opacity-40 focus:outline-none focus:ring ${borderClassNames}`}
+				readOnly={readOnly}
+				value={value}
+				onChange={(e) => handleChange(e.target.value)}
 			/>
 		</div>
 	);
